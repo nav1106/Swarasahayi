@@ -58,6 +58,10 @@ cards that need no network.
 | No voice for a language on the device | Message asks the user to read the text |
 | Microphone blocked or browser unsupported | Clear message and a "Type instead" box |
 
+## Pitch deck
+
+`docs/Swarasahayi-pitch-deck.pdf` (text-readable PDF, 9 slides).
+
 ## Live deployment (Vercel)
 
 Import the repo at vercel.com/new. `vercel.json` already sets the Vite build and output. No environment variables are needed. Vercel serves HTTPS, which phones need for the microphone.
