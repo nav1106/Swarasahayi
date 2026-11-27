@@ -120,13 +120,13 @@ export default function Learn({ profile, theme, onBack }) {
   const outOfTries = !result?.passed && tries >= MAX_TRIES
   const mood = listening ? 'listening' : result?.passed ? 'happy' : result ? 'oops' : 'idle'
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <Header
         left={<BackButton onClick={() => setLevel(null)} />}
         title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}<span className="block text-sm font-normal text-muted">{S.levels[level - 1].en}</span></div>}
         right={<ThemeToggle pref={theme[0]} onChange={theme[1]} />}
       />
-      <div className="flex flex-1 flex-col gap-4 px-5 py-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-3 [&>*]:shrink-0">
         <div className="flex items-center justify-center gap-2" role="progressbar" aria-valuenow={index + 1} aria-valuemax={phrases.length}>
           {phrases.map((p, i) => (
             <span key={p.id} className={`h-3 rounded-full transition-all ${i === index ? 'w-9 bg-primary' : progress[p.id]?.passed ? 'w-3 bg-gold' : 'w-3 bg-line'}`} />
@@ -134,7 +134,7 @@ export default function Learn({ profile, theme, onBack }) {
         </div>
 
         <div className="flex items-end gap-3">
-          <Mascot mood={mood} size={84} />
+          <Mascot mood={mood} size={72} />
           <div className="mb-3 flex-1 rounded-[24px] rounded-bl-md bg-surface2 px-4 py-2" role="status">
             {listening ? <Bi s={S.listening} /> : result ? <Bi s={result.passed ? S.great : S.tryAgain} mlClass="text-xl" /> : <Bi s={S.sayIt} />}
           </div>
@@ -146,15 +146,7 @@ export default function Learn({ profile, theme, onBack }) {
           <p className="mt-3 inline-block rounded-2xl bg-surface2 px-3 py-1 text-xl text-link">{phrase.pron}</p>
         </div>
 
-        <BigButton tone="soft" icon="speaker" s={S.hear} onClick={() => hear()} />
-
-        {speechSupported() ? (
-          <BigButton icon="mic" s={listening ? S.listening : S.sayIt} disabled={listening || outOfTries || result?.passed} onClick={attempt} className="w-full" />
-        ) : (
-          <BigButton icon="check" s={S.iSaidIt} onClick={() => { record(phrase.id, { passed: true }); setResult({ passed: true, score: 1, heard: '' }) }} />
-        )}
-
-        {result && (
+        {result && (result.heard || !result.passed) && (
           <div className={`enter rounded-[24px] border-2 p-4 ${result.passed ? 'border-success bg-success-bg' : 'border-gold bg-surface2'}`}>
             {result.heard && <p className="text-lg">{S.heard.ml} <span className="text-sm text-muted">({S.heard.en})</span>: <span className="font-semibold">{result.heard}</span> · {Math.round(result.score * 100)}%</p>}
             {!result.passed && <p className="mt-1 text-sm text-muted">{tries}/{MAX_TRIES}</p>}
@@ -162,7 +154,20 @@ export default function Learn({ profile, theme, onBack }) {
         )}
         <Banner banner={banner} />
 
-        {(result?.passed || outOfTries || done) && <BigButton icon="play" s={S.next} onClick={next} className="mt-auto w-full" />}
+      </div>
+
+      <div className="z-10 shrink-0 bg-bg">
+        <div className="kasavu" aria-hidden="true" />
+        <div className="flex flex-col gap-2 px-5 pb-4 pt-3">
+          {(result?.passed || outOfTries || done) ? (
+            <BigButton icon="play" s={S.next} onClick={next} className="w-full" />
+          ) : speechSupported() ? (
+            <BigButton icon="mic" s={listening ? S.listening : S.sayIt} disabled={listening || outOfTries || result?.passed} onClick={attempt} className="w-full" />
+          ) : (
+            <BigButton icon="check" s={S.iSaidIt} onClick={() => { record(phrase.id, { passed: true }); setResult({ passed: true, score: 1, heard: '' }) }} />
+          )}
+          <BigButton tone="soft" icon="speaker" s={S.hear} onClick={() => hear()} className="min-h-14 py-2" />
+        </div>
       </div>
     </div>
   )

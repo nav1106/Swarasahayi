@@ -36,6 +36,7 @@ export const S = {
   no: { ml: 'അല്ല', en: 'No' },
   numberUnclear: { ml: 'സംഖ്യ വ്യക്തമല്ല, ഒന്നുകൂടി പറയൂ', en: 'Number unclear, say again' },
   numberCheck: { ml: 'സംഖ്യ ഒന്നുകൂടി നോക്കൂ', en: 'Please double-check the number' },
+  offlineSub: { ml: 'നെറ്റ് ഇല്ലെങ്കിലും ഉപയോഗിക്കാം', en: 'Works without internet' },
   offlineNotice: { ml: 'നെറ്റ്‌വർക്ക് കിട്ടുന്നില്ല. ഓഫ്‌ലൈൻ വാക്യങ്ങൾ ഉപയോഗിക്കൂ.', en: 'No network. Use the offline phrases.' },
   quota: { ml: 'പരിഭാഷാ സേവനം ഇപ്പോൾ ലഭ്യമല്ല. ഓഫ്‌ലൈൻ വാക്യങ്ങൾ ഉപയോഗിക്കൂ.', en: 'Translation service is busy. Use the offline phrases.' },
   noVoice: { ml: 'ഈ ഫോണിൽ ഈ ഭാഷയുടെ ശബ്ദം ഇല്ല. എഴുത്ത് വായിക്കൂ.', en: 'No voice for this language on this device. Read the text. To get one: Phone Settings > Text-to-speech > Google > install the Malayalam voice.' },

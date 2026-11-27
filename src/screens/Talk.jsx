@@ -167,10 +167,6 @@ export default function Talk({ profile, options, theme, onBack }) {
             <Bi s={caption} />
             {listening && interim && <p className="mt-1 text-xl">{interim}</p>}
           </div>
-          <button type="button" onClick={() => setShowOffline((v) => !v)} aria-pressed={showOffline} className={`flex min-h-14 min-w-14 flex-col items-center justify-center rounded-2xl px-2 text-xs font-semibold ${showOffline ? 'bg-primary text-on-primary' : 'text-link'}`}>
-            <Icon name="wifioff" size={24} />
-            <span>{S.offline.en.split(' ')[0]}</span>
-          </button>
         </div>
 
         {messages.length === 0 && !demoRunning && (
@@ -220,6 +216,16 @@ export default function Talk({ profile, options, theme, onBack }) {
         <div className="kasavu" aria-hidden="true" />
         <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
           {status === 'working' && <p className="sr-only" role="status">{S.working.en}</p>}
+
+          {!demoRunning && (
+            <button type="button" onClick={() => setShowOffline((v) => !v)} aria-pressed={showOffline} className={`btn flex min-h-14 w-full items-center gap-3 rounded-[20px] px-4 py-1.5 text-left ${showOffline ? 'btn-primary' : 'btn-soft'}`}>
+              <Icon name="chat" size={26} className="shrink-0" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-base font-semibold leading-tight">{S.offline.ml}</span>
+                <span className="block text-xs opacity-80">{S.offline.en} · {S.offlineSub.en}</span>
+              </span>
+            </button>
+          )}
 
           {demoRunning ? (
             <BigButton tone="danger" icon="stop" s={S.stop} onClick={() => { stopDemo.current = true; stopSpeaking(); setDemoRunning(false) }} />
