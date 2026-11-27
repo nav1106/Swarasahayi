@@ -70,7 +70,7 @@ export default function Learn({ profile, theme, onBack }) {
   // ---- Level path ----
   if (!level) {
     return (
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col">
         <Header
           left={<BackButton onClick={onBack} />}
           title={<div className="text-lg font-semibold">{S.learn.ml}<span className="block text-sm font-normal text-muted">{S.learn.en} · {TRADE_NAMES[profile.trade].en}</span></div>}
@@ -120,7 +120,7 @@ export default function Learn({ profile, theme, onBack }) {
   const outOfTries = !result?.passed && tries >= MAX_TRIES
   const mood = listening ? 'listening' : result?.passed ? 'happy' : result ? 'oops' : 'idle'
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Header
         left={<BackButton onClick={() => setLevel(null)} />}
         title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}<span className="block text-sm font-normal text-muted">{S.levels[level - 1].en}</span></div>}

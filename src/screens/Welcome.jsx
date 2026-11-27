@@ -28,7 +28,7 @@ export default function Welcome({ profile, startStep = 0, onDone, theme }) {
   const pickLang = (lang) => onDone({ ...draft, lang })
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden">
       <div className="weave weave-mask pointer-events-none absolute inset-x-0 top-0 h-72" aria-hidden="true" />
       <Kasavu />
       <div className="relative flex justify-end px-3 pt-3">

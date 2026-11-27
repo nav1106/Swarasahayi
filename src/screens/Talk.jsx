@@ -4,7 +4,6 @@ import { translate, TranslateError } from '../lib/translate.js'
 import { checkNumbers, extractNumbers } from '../lib/numbers.js'
 import { decideAction } from '../lib/confidence.js'
 import { listen, speak, stopSpeaking, speechSupported } from '../lib/speech.js'
-import { startMeter } from '../lib/audioLevel.js'
 import { phrasesForTrade } from '../lib/phrases.js'
 import { DEMOS } from '../lib/demos.js'
 import { appendFeedback } from '../lib/storage.js'
@@ -19,13 +18,6 @@ const REPEAT_PROMPT = {
   en: 'Please repeat slowly.',
   hi: 'कृपया धीरे दोबारा बोलिए।',
   ta: 'தயவுசெய்து மெதுவாக மீண்டும் சொல்லுங்கள்.',
-}
-
-// Stop the level meter without ever hanging on a pending microphone prompt.
-async function stopMeter(promise) {
-  const m = await Promise.race([promise, sleep(300).then(() => 'timeout')])
-  if (m === 'timeout') { promise.then((x) => x?.stop()); return null }
-  return m ? m.stop() : null
 }
 
 export default function Talk({ profile, options, theme, onBack }) {
@@ -105,6 +97,9 @@ export default function Talk({ profile, options, theme, onBack }) {
     else say(REPEAT_PROMPT[profile.lang], profile.lang)
   }
 
+  const recRef = useRef(null)
+  const stopListening = () => { try { recRef.current?.stop() } catch { /* already stopped */ } }
+
   const handleListen = async (side) => {
     if (status !== 'idle') return
     stopSpeaking()
@@ -112,19 +107,15 @@ export default function Talk({ profile, options, theme, onBack }) {
     setPending(null)
     setInterim('')
     setStatus('listening')
-    const meter = startMeter(setLevel).catch(() => null)
+    // No separate level meter here: a second microphone stream stops Android Chrome's recognizer from hearing anything.
     try {
-      const { alternatives } = await listen(langOf(side), { onInterim: setInterim })
-      const stats = await stopMeter(meter)
-      setLevel(0)
+      const { alternatives } = await listen(langOf(side), { onInterim: setInterim, onRecognizer: (r) => { recRef.current = r } })
+      recRef.current = null
       setInterim('')
-      if (stats?.verdict === 'noisy') setBanner({ kind: 'info', s: S.noisy })
-      if (stats?.verdict === 'quiet' && !alternatives.length) setBanner({ kind: 'info', s: S.quiet })
       setStatus('idle')
       handleResult(side, alternatives)
     } catch (e) {
-      stopMeter(meter)
-      setLevel(0)
+      recRef.current = null
       setInterim('')
       setStatus('idle')
       const map = { 'mic-denied': S.micDenied, unsupported: S.micUnsupported, network: S.voiceService, lang: S.langUnsupported }
@@ -238,15 +229,15 @@ export default function Talk({ profile, options, theme, onBack }) {
               <div className="flex flex-col items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => handleListen('worker')}
+                  onClick={() => (listening ? stopListening() : handleListen('worker'))}
                   disabled={busy && !listening}
                   aria-pressed={listening}
-                  aria-label={`${S.workerMic.ml} ${S.workerMic.en}`}
+                  aria-label={listening ? `${S.stop.ml} ${S.stop.en}` : `${S.workerMic.ml} ${S.workerMic.en}`}
                   className={`btn btn-primary relative flex h-24 w-24 items-center justify-center rounded-full ${listening ? 'mic-ring' : ''}`}
                 >
-                  {listening ? <Bars /> : <Icon name="mic" size={44} />}
+                  {listening ? <Icon name="stop" size={40} /> : <Icon name="mic" size={44} />}
                 </button>
-                <Bi s={S.workerMic} className="text-center" />
+                <Bi s={listening ? S.stop : S.workerMic} className="text-center" />
               </div>
               <DockSide icon="person" s={S.customerMic} disabled={busy} onClick={() => handleListen('customer')} />
             </div>

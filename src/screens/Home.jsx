@@ -28,19 +28,18 @@ export default function Home({ profile, theme, onTalk, onLearn, onDemo, onOfflin
   }, { passed: 0, total: 0 })
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-dvh flex-col overflow-y-auto">
       <Kasavu />
-      <div className="flex justify-end px-4 pt-3">
-        <ThemeToggle pref={theme[0]} onChange={theme[1]} compact />
-      </div>
-
-      <div className="flex items-center gap-3 px-5 pt-5">
-        <Mascot mood="idle" size={84} />
-        <div>
-          <h1 className="font-hand text-4xl leading-tight">{S.namaskaram.ml}</h1>
+      <div className="flex items-center gap-3 px-5 pt-3">
+        <Mascot mood="idle" size={64} />
+        <div className="flex-1">
+          <h1 className="font-hand text-3xl leading-tight">{S.namaskaram.ml}</h1>
           <p className="text-sm text-muted">{S.namaskaram.en}</p>
           <p className="text-muted">{S.tagline.en}</p>
         </div>
+      </div>
+      <div className="flex justify-end px-5 pt-2">
+        <ThemeToggle pref={theme[0]} onChange={theme[1]} compact />
       </div>
 
       <div className="px-5 pt-4">
@@ -54,35 +53,30 @@ export default function Home({ profile, theme, onTalk, onLearn, onDemo, onOfflin
         </button>
       </div>
 
-      <div className="flex flex-col gap-4 px-5 pb-6 pt-4">
-        <button type="button" onClick={onTalk} className="btn btn-primary enter relative flex min-h-40 items-center gap-4 overflow-hidden rounded-[32px] p-6 text-left">
-          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-on-primary text-primary"><Icon name="mic" size={40} /></span>
+      <div className="flex flex-col gap-3 px-5 pb-4 pt-3">
+        <button type="button" onClick={onTalk} className="btn btn-primary enter relative flex min-h-28 items-center gap-4 overflow-hidden rounded-[28px] p-4 text-left">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-on-primary text-primary"><Icon name="mic" size={40} /></span>
           <Bi s={S.talk} mlClass="text-3xl" enClass="text-base" />
         </button>
 
-        <button type="button" onClick={onLearn} className="btn btn-soft enter flex min-h-32 items-center gap-4 rounded-[28px] p-5 text-left" style={{ animationDelay: '.06s' }}>
+        <button type="button" onClick={onLearn} className="btn btn-soft enter flex min-h-24 items-center gap-4 rounded-[28px] p-5 text-left" style={{ animationDelay: '.06s' }}>
           <ProgressRing value={totals.passed} total={totals.total} />
           <span className="flex-1"><Bi s={S.learn} mlClass="text-3xl" enClass="text-base" /></span>
           <Icon name="book" size={30} className="text-link" />
         </button>
 
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" onClick={onDemo} className="btn btn-soft enter flex min-h-28 flex-col items-start justify-between rounded-[26px] p-4 text-left" style={{ animationDelay: '.12s' }}>
+          <button type="button" onClick={onDemo} className="btn btn-soft enter flex min-h-24 flex-col items-start justify-between rounded-[26px] p-4 text-left" style={{ animationDelay: '.12s' }}>
             <Icon name="play" size={28} className="text-link" />
             <Bi s={S.demo} />
           </button>
-          <button type="button" onClick={onOffline} className="btn btn-soft enter flex min-h-28 flex-col items-start justify-between rounded-[26px] p-4 text-left" style={{ animationDelay: '.16s' }}>
+          <button type="button" onClick={onOffline} className="btn btn-soft enter flex min-h-24 flex-col items-start justify-between rounded-[26px] p-4 text-left" style={{ animationDelay: '.16s' }}>
             <Icon name="wifioff" size={28} className="text-link" />
             <Bi s={S.offline} />
           </button>
         </div>
       </div>
 
-      <div className="mt-auto px-6 pb-6 text-center text-sm text-muted">
-        <Icon name="lock" size={16} className="mr-1 inline align-[-3px]" />
-        {S.consent.ml}
-        <span className="block opacity-80">{S.consent.en}</span>
-      </div>
     </div>
   )
 }

@@ -18,7 +18,7 @@ export default function App() {
   const finishWelcome = (p) => { save('profile', p); setProfile(p); go('home') }
 
   return (
-    <main className="mx-auto min-h-screen max-w-xl bg-bg">
+    <main className="mx-auto min-h-dvh max-w-xl bg-bg">
       {screen === 'splash' && (
         <Splash
           profile={profile}

@@ -14,7 +14,7 @@ export class SpeechError extends Error {
 
 // Listen once. Resolves with up to 3 alternatives; an empty list means nothing was heard.
 // Recording stops after `silenceMs` without new speech.
-export function listen(lang, { onInterim, silenceMs = 1500, maxMs = 15000 } = {}) {
+export function listen(lang, { onInterim, onRecognizer, silenceMs = 1500, maxMs = 15000 } = {}) {
   return new Promise((resolve, reject) => {
     if (!Recognition) return reject(new SpeechError('unsupported'))
     const rec = new Recognition()
@@ -22,6 +22,7 @@ export function listen(lang, { onInterim, silenceMs = 1500, maxMs = 15000 } = {}
     rec.interimResults = true
     rec.continuous = false
     rec.maxAlternatives = 3
+    onRecognizer?.(rec)
     let last = Date.now()
     let result = []
     let settled = false
