@@ -1,0 +1,10 @@
+{
+  "name": "Swarasahayi (സ്വരസഹായി)",
+  "short_name": "Swarasahayi",
+  "description": "Your voice, understood.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f0fdfa",
+  "theme_color": "#0f766e",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

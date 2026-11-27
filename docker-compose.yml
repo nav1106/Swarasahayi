@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        # Optional. Leave unset to use the free keyless translation endpoint
+        # and the built-in offline phrase bank.
+        VITE_TRANSLATE_API_URL: ${VITE_TRANSLATE_API_URL:-}
+        VITE_TRANSLATE_API_KEY: ${VITE_TRANSLATE_API_KEY:-}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
