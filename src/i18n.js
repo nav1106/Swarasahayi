@@ -78,7 +78,7 @@ export const S = {
 export const TRADE_NAMES = {
   fish: { ml: 'മീൻ കച്ചവടം', en: 'Fish seller' },
   auto: { ml: 'ഓട്ടോ ഡ്രൈവർ', en: 'Auto driver' },
-  salon: { ml: 'സലൂൺ', en: 'Salon' },
+  salon: { ml: 'സലൂൺ ജീവനക്കാർ', en: 'Salon employee' },
   office: { ml: 'ഓഫീസ് ഫ്രണ്ട് ഡെസ്ക്', en: 'Office front desk' },
 }
 export const LANG_NAMES = {
