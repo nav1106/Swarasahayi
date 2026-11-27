@@ -46,9 +46,19 @@ export async function translate(text, from, to, { trade, fetchImpl } = {}) {
 
   if (!f) throw new TranslateError('network', 'fetch unavailable')
   let prepared = from === 'ml' ? normalizeManglish(text) : text
-  prepared = applyGlossary(prepared, from, to, trade)
+  const pivoting = (from === 'ml' && to !== 'en') || (to === 'ml' && from !== 'en')
+  prepared = applyGlossary(prepared, from, pivoting ? 'en' : to, trade)
+  const call = (t, a, b) => (API_URL ? libreTranslate(t, a, b, f) : myMemory(t, a, b, f))
   try {
-    const out = API_URL ? await libreTranslate(prepared, from, to, f) : await myMemory(prepared, from, to, f)
+    // Direct Malayalam <-> Hindi/Tamil pairs are thin in free translation memories, so go through English,
+    // which is much better covered. Both hops use the same service.
+    if (pivoting) {
+      const mid = await call(prepared, from, 'en')
+      // Drop the "(mathi)" style notes added for the English hop before the trade terms are swapped again.
+      const out = await call(applyGlossary(mid.replace(/\s*\([A-Za-z ]+\)/g, ''), 'en', to, trade), 'en', to)
+      return { text: out, via: 'model', verified: false, pivot: mid }
+    }
+    const out = await call(prepared, from, to)
     return { text: out, via: 'model', verified: false }
   } catch (e) {
     if (e instanceof TranslateError) throw e

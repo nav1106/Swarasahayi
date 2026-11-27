@@ -70,6 +70,8 @@ export const S = {
   heard: { ml: 'കേട്ടത്', en: 'Heard' },
   start: { ml: 'തുടങ്ങാം', en: 'Get started' },
   continueAs: { ml: 'തുടരുക', en: 'Continue' },
+  moderated: { ml: 'ഈ വാക്കുകൾ പരിഭാഷപ്പെടുത്തില്ല. മാന്യമായി സംസാരിക്കൂ.', en: 'This will not be translated. Please speak politely.' },
+  moderatedOut: { ml: 'പരിഭാഷ കാണിക്കാനാവില്ല. മറ്റൊരു രീതിയിൽ പറയൂ.', en: 'That translation was blocked. Please say it another way.' },
   changeWork: { ml: 'തൊഴിൽ / ഭാഷ മാറ്റുക', en: 'Change profession or language' },
   yourWork: { ml: 'നിങ്ങളുടെ തൊഴിൽ', en: 'Your profession' },
 }

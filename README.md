@@ -100,6 +100,14 @@ Dockerfile, docker-compose.yml, nginx.conf, .env.example
 Swarasahayi never records or stores audio. Note: in Chrome, the Web Speech API sends speech to Google's servers for recognition, and typed or spoken text goes to the translation endpoint. The profile, theme choice, learning progress and (only with consent) correction logs stay in
 the phone's `localStorage`.
 
+## Safety filter
+
+Before anything is translated or spoken, `src/lib/moderation.js` checks what was said, and again what the translator returned, against `src/data/blocklist.json` (abuse in English, Malayalam, Hindi and Tamil; threats; sexual requests). Matches are never translated or spoken; the screen shows the words masked and a polite message, and a customer is asked politely in their own language. It is a keyword filter, not a full classifier, and the seed list needs native-speaker review and extension.
+
+## Translation path
+
+Malayalam to or from Hindi/Tamil goes through English (two hops), because direct pairs are poorly covered by free translation memories. Reviewed phrase-bank answers skip the model entirely.
+
 ## Known limits
 
 - Works best in Chrome on Android or desktop. Malayalam recognition quality varies, especially in noise.

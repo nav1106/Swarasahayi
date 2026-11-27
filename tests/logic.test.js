@@ -197,3 +197,51 @@ describe('learn scoring is strict word by word', () => {
     expect(pass('Hello, welcome.', 'hello welcome to my shop today')).toBe(false)
   })
 })
+
+import { moderate, maskFlagged } from '../src/lib/moderation.js'
+import { translate } from '../src/lib/translate.js'
+
+describe('safety filter', () => {
+  it('lets ordinary shop talk through, including words that contain filtered letters', () => {
+    for (const t of ['The price is 400 rupees per kilo.', 'Please contact the assistant at the class', 'Scunthorpe Essex Sussex', 'How much for the sardine?', 'ഈ മീൻ ഫ്രഷ് ആണ്.', 'यह मछली ताज़ा है।', 'இந்த மீன் புதியது.']) {
+      expect(moderate(t).ok, t).toBe(true)
+    }
+  })
+  it('blocks abuse in English, even disguised', () => {
+    for (const t of ['you bitch', 'F U C K off', 'fuuuuck you', 'sh1t price', 'what a b!tch', 'You are an ASSHOLE.']) expect(moderate(t).ok, t).toBe(false)
+  })
+  it('blocks abuse in Malayalam, Hindi and Tamil (romanised and native script)', () => {
+    for (const t of ['nee oru thendi aanu', 'തെണ്ടി പോടാ', 'madarchod', 'अरे चूतिया', 'ஒத்தா போ', 'thevidiya']) expect(moderate(t).ok, t).toBe(false)
+  })
+  it('blocks threats and sexual requests', () => {
+    expect(moderate('I will kill you').category).toBe('threat')
+    expect(moderate('send nudes please').category).toBe('sexual')
+  })
+  it('masks what it shows', () => {
+    const r = moderate('you bitch')
+    expect(maskFlagged('you bitch', r.flagged)).toBe('you b****')
+  })
+})
+
+describe('translation goes through English for Malayalam <-> Hindi/Tamil', () => {
+  const mock = (log) => async (url) => {
+    const q = new URL(url).searchParams
+    log.push(q.get('langpair'))
+    const [a, b] = q.get('langpair').split('|')
+    return { ok: true, status: 200, json: async () => ({ responseStatus: 200, responseData: { translatedText: `[${a}>${b}] ${q.get('q')}` } }) }
+  }
+  it('uses two hops for ml -> hi', async () => {
+    const log = []
+    const r = await translate('എത്ര രൂപ ഉണ്ട് ഇതിന്', 'ml', 'hi', { trade: 'fish', fetchImpl: mock(log) })
+    expect(log).toEqual(['ml|en', 'en|hi'])
+    expect(r.pivot).toContain('[ml>en]')
+  })
+  it('uses two hops for ta -> ml, one hop for ml -> en', async () => {
+    const a = []
+    await translate('இந்த கடையில் இன்று புதிய இறால் கிடைக்குமா', 'ta', 'ml', { trade: 'fish', fetchImpl: mock(a) })
+    expect(a).toEqual(['ta|en', 'en|ml'])
+    const b = []
+    await translate('എത്ര രൂപ ഉണ്ട് ഇതിന്', 'ml', 'en', { trade: 'fish', fetchImpl: mock(b) })
+    expect(b).toEqual(['ml|en'])
+  })
+})

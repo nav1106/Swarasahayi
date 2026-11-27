@@ -5,6 +5,7 @@ import { checkNumbers, extractNumbers } from '../lib/numbers.js'
 import { decideAction } from '../lib/confidence.js'
 import { listen, speak, stopSpeaking, speechSupported } from '../lib/speech.js'
 import { phrasesForTrade } from '../lib/phrases.js'
+import { moderate, maskFlagged } from '../lib/moderation.js'
 import { DEMOS } from '../lib/demos.js'
 import { appendFeedback } from '../lib/storage.js'
 import { Bi, BigButton, Banner, Header, BackButton } from '../ui.jsx'
@@ -13,6 +14,12 @@ import Mascot from '../Mascot.jsx'
 import ThemeToggle from '../ThemeToggle.jsx'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+const POLITE_PROMPT = {
+  en: 'Please speak politely.',
+  hi: 'कृपया सभ्य भाषा में बोलिए।',
+  ta: 'தயவுசெய்து மரியாதையாகப் பேசுங்கள்.',
+}
 
 const REPEAT_PROMPT = {
   en: 'Please repeat slowly.',
@@ -52,6 +59,14 @@ export default function Talk({ profile, options, theme, onBack }) {
     if (!r.spoken && r.reason === 'no-voice') setBanner({ kind: 'info', s: S.noVoice })
   }
 
+  // Safety first: abusive, threatening or sexual words are never translated or spoken, in either direction.
+  const refuse = (side, text, flagged, fromLang, toLang, key) => {
+    setMessages((m) => [...m, { id: ++idRef.current, side, from: fromLang, to: toLang, src: maskFlagged(text, flagged), tgt: '', via: 'moderation', nums: { status: 'none', source: [] }, blocked: true, moderated: key }])
+    // Tell a customer in their own language; the worker sees the message on screen.
+    if (side === 'customer' && key === 'moderated') say(POLITE_PROMPT[profile.lang], profile.lang)
+    setStatus('idle')
+  }
+
   // Translate one utterance, check its numbers, then speak it unless the numbers are wrong.
   const proceed = async (side, text, fromLang = langOf(side)) => {
     const toLang = targetOf(side)
@@ -59,8 +74,12 @@ export default function Talk({ profile, options, theme, onBack }) {
     setStatus('working')
     setBanner(null)
     setPending(null)
+    const inCheck = moderate(text)
+    if (!inCheck.ok) return refuse(side, text, inCheck.flagged, fromLang, toLang, 'moderated')
     try {
       const res = await translate(text, fromLang, toLang, { trade: profile.trade })
+      const outCheck = moderate(res.text)
+      if (!outCheck.ok) return refuse(side, text, [], fromLang, toLang, 'moderatedOut')
       const nums = res.verified
         ? { status: extractNumbers(text).length ? 'match' : 'none', source: extractNumbers(text) }
         : checkNumbers(text, res.text, toLang)
@@ -286,7 +305,9 @@ function Bubble({ m, onRepeat, onSlow, onThumbs }) {
     <div className={`enter flex ${mine ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[90%] p-4 ${mine ? 'rounded-[28px] rounded-br-lg bg-primary text-on-primary' : 'rounded-[28px] rounded-bl-lg border-2 border-line bg-surface text-ink'} ${m.blocked ? 'ring-4 ring-danger' : ''}`}>
         <p className="text-base opacity-85">{m.src}</p>
-        <p className="mt-1 text-2xl font-bold leading-snug">{m.blocked ? '—' : m.tgt}</p>
+        {m.moderated
+          ? <div className="mt-2"><Bi s={S[m.moderated]} mlClass="text-lg" /></div>
+          : <p className="mt-1 text-2xl font-bold leading-snug">{m.blocked ? '—' : m.tgt}</p>}
         {m.nums.source.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{m.nums.source.map(chip)}</div>}
         {m.via === 'phrasebank' && !m.blocked && <p className="mt-2 flex items-center gap-1 text-sm opacity-85"><Icon name="check" size={14} strokeWidth={3} /> {'phrase bank'}</p>}
         {!m.blocked && (

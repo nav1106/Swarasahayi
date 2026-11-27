@@ -1,0 +1,19 @@
+{
+  "_note": "Seed list for the safety filter. Whole-word match (Latin) or word-start match (Indic scripts, which add suffixes). Native speakers must review and extend it before real use. Words that are also ordinary words (food, names, places) were left out on purpose.",
+  "abuse": {
+    "en": ["fuck", "fucker", "fucking", "motherfucker", "shit", "bullshit", "bitch", "bastard", "asshole", "dickhead", "cunt", "slut", "whore", "faggot", "nigger", "nigga", "retard"],
+    "ml_latin": ["thendi", "thayoli", "mayiru", "kunna", "oombi", "pundachi", "myre"],
+    "ml": ["തെണ്ടി", "തായോളി", "മയിര്", "കുണ്ണ", "ഊമ്പി", "പൂറ്", "പുണ്ട"],
+    "hi_latin": ["madarchod", "behenchod", "bhenchod", "bhosdike", "chutiya", "gandu", "randi", "harami", "lund", "gaand"],
+    "hi": ["मादरचोद", "बहनचोद", "भोसड़ी", "चूतिया", "गांडू", "रंडी", "हरामी", "लंड", "गांड"],
+    "ta_latin": ["otha", "thevidiya", "koothi", "sunni", "pundai"],
+    "ta": ["ஒத்தா", "தேவடியா", "தேவிடியா", "கூதி", "சுன்னி"]
+  },
+  "threat": {
+    "phrases": ["kill you", "kill him", "kill her", "will kill", "beat you up", "break your legs", "burn your shop", "i will find you"]
+  },
+  "sexual": {
+    "words": ["blowjob", "handjob", "porn", "nudes"],
+    "phrases": ["have sex", "sleep with me", "send nudes", "nude photo"]
+  }
+}
