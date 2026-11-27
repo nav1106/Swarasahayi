@@ -175,3 +175,11 @@ describe('learning', () => {
     expect(isLevelUnlocked('fish', 3, progress)).toBe(false)
   })
 })
+
+describe('learn scoring leniency', () => {
+  it('passes a slightly bent sentence but not a wrong word in a short phrase', () => {
+    expect(scoreAttempt('Hello, welcome.', [{ transcript: 'hello welcome' }])).toBeGreaterThanOrEqual(0.75)
+    expect(scoreAttempt('This fish is fresh.', [{ transcript: 'this fish is old' }])).toBeLessThan(0.75)
+    expect(scoreAttempt('The fish was caught this morning.', [{ transcript: 'the fish was caught this evening' }])).toBeGreaterThanOrEqual(0.75)
+  })
+})

@@ -40,7 +40,7 @@ export default function Learn({ profile, theme, onBack }) {
     setResult(null)
     setListening(true)
     try {
-      const { alternatives } = await listen('en')
+      const { alternatives } = await listen('en', { silenceMs: 2200 })
       const score = alternatives.length ? scoreAttempt(phrase.en, alternatives) : 0
       const passed = score >= PASS_SCORE
       const used = tries + 1
@@ -62,10 +62,20 @@ export default function Learn({ profile, theme, onBack }) {
     setResult(null)
     setTries(0)
     setBanner(null)
-    if (index + 1 >= phrases.length) { setLevel(null); setIndex(0) } else setIndex(index + 1)
+    if (index + 1 >= phrases.length) window.history.back()
+    else setIndex(index + 1)
   }
 
-  const start = (lv) => { setLevel(lv); setIndex(0); setTries(0); setResult(null) }
+  const start = (lv) => {
+    window.history.pushState({ screen: 'learn', options: {}, level: lv }, '')
+    setLevel(lv); setIndex(0); setTries(0); setResult(null)
+  }
+  // The phone's Back button leaves a level instead of leaving the app.
+  useEffect(() => {
+    const onPop = (e) => { setLevel(e.state?.level ?? null); setIndex(0); setTries(0); setResult(null); setBanner(null) }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   // ---- Level path ----
   if (!level) {
@@ -122,7 +132,7 @@ export default function Learn({ profile, theme, onBack }) {
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       <Header
-        left={<BackButton onClick={() => setLevel(null)} />}
+        left={<BackButton onClick={() => window.history.back()} />}
         title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}<span className="block text-sm font-normal text-muted">{S.levels[level - 1].en}</span></div>}
         right={<ThemeToggle pref={theme[0]} onChange={theme[1]} />}
       />
@@ -159,6 +169,7 @@ export default function Learn({ profile, theme, onBack }) {
       <div className="z-10 shrink-0 bg-bg">
         <div className="kasavu" aria-hidden="true" />
         <div className="flex flex-col gap-2 px-5 pb-4 pt-3">
+          <BigButton tone="soft" icon="speaker" s={S.hear} onClick={() => hear()} />
           {(result?.passed || outOfTries || done) ? (
             <BigButton icon="play" s={S.next} onClick={next} className="w-full" />
           ) : speechSupported() ? (
@@ -166,7 +177,6 @@ export default function Learn({ profile, theme, onBack }) {
           ) : (
             <BigButton icon="check" s={S.iSaidIt} onClick={() => { record(phrase.id, { passed: true }); setResult({ passed: true, score: 1, heard: '' }) }} />
           )}
-          <BigButton tone="soft" icon="speaker" s={S.hear} onClick={() => hear()} className="min-h-14 py-2" />
         </div>
       </div>
     </div>

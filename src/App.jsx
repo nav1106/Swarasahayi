@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { load, save } from './lib/storage.js'
 import Splash from './screens/Splash.jsx'
 import Welcome from './screens/Welcome.jsx'
@@ -14,8 +14,26 @@ export default function App() {
   const [welcomeStep, setWelcomeStep] = useState(0)
   const theme = useTheme()
 
-  const go = (next, opts = {}) => { setOptions(opts); setScreen(next) }
-  const finishWelcome = (p) => { save('profile', p); setProfile(p); go('home') }
+  // Every screen change is a browser-history entry, so the phone's Back button steps back inside the app.
+  const go = (next, opts = {}, replace = false) => {
+    const state = { screen: next, options: opts }
+    if (replace) window.history.replaceState(state, '')
+    else window.history.pushState(state, '')
+    setOptions(opts)
+    setScreen(next)
+  }
+  const back = () => window.history.back()
+  useEffect(() => {
+    window.history.replaceState({ screen: 'splash', options: {} }, '')
+    const onPop = (e) => {
+      const st = e.state
+      setOptions(st?.options || {})
+      setScreen(st?.screen || 'splash')
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+  const finishWelcome = (p) => { save('profile', p); setProfile(p); go('home', {}, true) }
 
   return (
     <main className="mx-auto min-h-dvh max-w-xl bg-bg">
@@ -41,8 +59,8 @@ export default function App() {
           onChange={() => { setWelcomeStep(1); go('welcome') }}
         />
       )}
-      {screen === 'talk' && profile && <Talk profile={profile} options={options} theme={theme} onBack={() => go('home')} />}
-      {screen === 'learn' && profile && <Learn profile={profile} theme={theme} onBack={() => go('home')} />}
+      {screen === 'talk' && profile && <Talk profile={profile} options={options} theme={theme} onBack={back} />}
+      {screen === 'learn' && profile && <Learn profile={profile} theme={theme} onBack={back} />}
     </main>
   )
 }
