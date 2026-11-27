@@ -8,7 +8,7 @@ import { similarity, normalizeText } from '../src/lib/text.js'
 import { findPhrase, normalizeManglish, applyGlossary, phrasesForTrade, TRADES } from '../src/lib/phrases.js'
 import { translate, TranslateError } from '../src/lib/translate.js'
 import { classifyLevels } from '../src/lib/audioLevel.js'
-import { isLevelUnlocked, levelStats, scoreAttempt } from '../src/lib/learn.js'
+import { PASS_SCORE, isLevelUnlocked, levelStats, scoreAttempt } from '../src/lib/learn.js'
 import { DEMOS } from '../src/lib/demos.js'
 
 describe('numbers', () => {
@@ -176,10 +176,24 @@ describe('learning', () => {
   })
 })
 
-describe('learn scoring leniency', () => {
-  it('passes a slightly bent sentence but not a wrong word in a short phrase', () => {
-    expect(scoreAttempt('Hello, welcome.', [{ transcript: 'hello welcome' }])).toBeGreaterThanOrEqual(0.75)
-    expect(scoreAttempt('This fish is fresh.', [{ transcript: 'this fish is old' }])).toBeLessThan(0.75)
-    expect(scoreAttempt('The fish was caught this morning.', [{ transcript: 'the fish was caught this evening' }])).toBeGreaterThanOrEqual(0.75)
+describe('learn scoring is strict word by word', () => {
+  const pass = (t, h) => scoreAttempt(t, [{ transcript: h }]) >= PASS_SCORE
+  it('accepts the right words regardless of case and punctuation', () => {
+    expect(pass('Hello, welcome.', 'hello welcome')).toBe(true)
+    expect(pass('What would you like?', 'What would you like')).toBe(true)
+  })
+  it('rejects a wrong word, even one that sounds close', () => {
+    expect(pass('What would you like?', 'what food u like')).toBe(false)
+    expect(pass('This fish is fresh.', 'this fish is old')).toBe(false)
+    expect(pass('The fish was caught this morning.', 'the fish was caught this evening')).toBe(false)
+  })
+  it('treats spelled-out numbers and digits the same', () => {
+    expect(pass('The price is 400 rupees per kilo.', 'the price is four hundred rupees per kilo')).toBe(true)
+    expect(pass('Last price, 350 rupees.', 'last price three hundred and fifty rupees')).toBe(true)
+    expect(pass('It will take 10 minutes.', 'it will take twenty minutes')).toBe(false)
+    expect(pass("We need a copy of the student's certificate.", 'we need a copy of the students certificate')).toBe(true)
+  })
+  it('rejects extra words', () => {
+    expect(pass('Hello, welcome.', 'hello welcome to my shop today')).toBe(false)
   })
 })
