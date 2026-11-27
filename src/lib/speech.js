@@ -64,15 +64,21 @@ export async function speak(text, lang, { rate = 0.95 } = {}) {
   const voices = await loadVoices()
   const voice = voices.find((v) => v.lang.replace('_', '-').toLowerCase() === code.toLowerCase())
     || voices.find((v) => v.lang.toLowerCase().startsWith(code.slice(0, 2).toLowerCase()))
-  if (!voice) return { spoken: false, reason: 'no-voice' }
   window.speechSynthesis.cancel()
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text)
-    u.voice = voice
-    u.lang = voice.lang
+    // Android Chrome often hides installed voices from getVoices(); asking by language code alone still works there.
+    if (voice) u.voice = voice
+    u.lang = voice ? voice.lang : code
     u.rate = rate
-    u.onend = () => resolve({ spoken: true })
-    u.onerror = () => resolve({ spoken: false, reason: 'error' })
+    let started = false
+    let timer = null
+    if (!voice) {
+      timer = setTimeout(() => { if (!started) { window.speechSynthesis.cancel(); resolve({ spoken: false, reason: 'no-voice' }) } }, 2500)
+    }
+    u.onstart = () => { started = true; if (timer) clearTimeout(timer) }
+    u.onend = () => { if (timer) clearTimeout(timer); resolve(started || voice ? { spoken: true } : { spoken: false, reason: 'no-voice' }) }
+    u.onerror = () => { if (timer) clearTimeout(timer); resolve({ spoken: false, reason: voice ? 'error' : 'no-voice' }) }
     window.speechSynthesis.speak(u)
   })
 }

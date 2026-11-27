@@ -38,7 +38,7 @@ export const S = {
   numberCheck: { ml: 'സംഖ്യ ഒന്നുകൂടി നോക്കൂ', en: 'Please double-check the number' },
   offlineNotice: { ml: 'നെറ്റ്‌വർക്ക് കിട്ടുന്നില്ല. ഓഫ്‌ലൈൻ വാക്യങ്ങൾ ഉപയോഗിക്കൂ.', en: 'No network. Use the offline phrases.' },
   quota: { ml: 'പരിഭാഷാ സേവനം ഇപ്പോൾ ലഭ്യമല്ല. ഓഫ്‌ലൈൻ വാക്യങ്ങൾ ഉപയോഗിക്കൂ.', en: 'Translation service is busy. Use the offline phrases.' },
-  noVoice: { ml: 'ഈ ഫോണിൽ ഈ ഭാഷയുടെ ശബ്ദം ഇല്ല. എഴുത്ത് വായിക്കൂ.', en: 'No voice for this language on this device. Read the text.' },
+  noVoice: { ml: 'ഈ ഫോണിൽ ഈ ഭാഷയുടെ ശബ്ദം ഇല്ല. എഴുത്ത് വായിക്കൂ.', en: 'No voice for this language on this device. Read the text. To get one: Phone Settings > Text-to-speech > Google > install the Malayalam voice.' },
   micDenied: { ml: 'മൈക്ക് അനുവദിച്ചിട്ടില്ല. ബ്രൗസർ സെറ്റിംഗ്സിൽ അനുവദിക്കൂ.', en: 'Microphone is blocked. Allow it in browser settings.' },
   micUnsupported: { ml: 'ഈ ബ്രൗസറിൽ ശബ്ദം പിന്തുണയ്ക്കുന്നില്ല. Chrome ഉപയോഗിക്കൂ അല്ലെങ്കിൽ ടൈപ്പ് ചെയ്യൂ.', en: 'Voice is not supported here. Use Chrome or type.' },
   voiceService: { ml: 'ശബ്ദ സേവനം കിട്ടുന്നില്ല. വീണ്ടും ശ്രമിക്കൂ.', en: 'Voice service unavailable. Try again.' },

@@ -99,7 +99,7 @@ the phone's `localStorage`.
 ## Known limits
 
 - Works best in Chrome on Android or desktop. Malayalam recognition quality varies, especially in noise.
-- Some phones have no Malayalam text-to-speech voice; the text is still shown.
+- Some phones have no Malayalam text-to-speech voice; the text is still shown. On Android: Settings > Text-to-speech > Google > install Malayalam voice data.
 - The free translation endpoint is rate limited and weaker than a fine-tuned model.
 - Hindi and Tamil numbers written as words cannot be verified; they are flagged "check the number".
 - Malayalam, Hindi and Tamil phrases should be reviewed by native speakers before real use.
