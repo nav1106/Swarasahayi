@@ -17,7 +17,7 @@ const PATHS = {
   stop: <rect x="6" y="6" width="12" height="12" rx="2" />,
   book: <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" /><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></>,
   chat: <path d="M4 5h16v11H10l-5 4v-4H4z" />,
-  wifioff: <><path d="M2 9a15 15 0 0 1 4-2.5M22 9a15 15 0 0 0-8-4M5 13a10 10 0 0 1 3-1.8M19 13a10 10 0 0 0-3-1.8M9 17a5 5 0 0 1 6 0M12 20.5v.5M3 3l18 18" /></>,
+  wifioff: <><path d="M1 1l22 22" /><path d="M16.7 11.1A11 11 0 0 1 19 12.6" /><path d="M5 12.6a11 11 0 0 1 5.2-2.4" /><path d="M10.7 5.1A16 16 0 0 1 22.6 9" /><path d="M1.4 9a16 16 0 0 1 4.7-2.9" /><path d="M8.5 16.1a6 6 0 0 1 7 0" /><path d="M12 20h.01" /></>,
   keyboard: <><rect x="2.5" y="6" width="19" height="12" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" /></>,
   send: <path d="M4 12l16-8-6 16-3-7z" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,

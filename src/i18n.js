@@ -67,6 +67,8 @@ export const S = {
   lessonDone: { ml: 'പാഠം കഴിഞ്ഞു', en: 'Lesson complete' },
   stop: { ml: 'നിർത്തൂ', en: 'Stop' },
   heard: { ml: 'കേട്ടത്', en: 'Heard' },
+  start: { ml: 'തുടങ്ങാം', en: 'Get started' },
+  continueAs: { ml: 'തുടരുക', en: 'Continue' },
   changeWork: { ml: 'തൊഴിൽ / ഭാഷ മാറ്റുക', en: 'Change profession or language' },
   yourWork: { ml: 'നിങ്ങളുടെ തൊഴിൽ', en: 'Your profession' },
 }

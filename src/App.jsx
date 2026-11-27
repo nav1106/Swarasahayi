@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { load, save } from './lib/storage.js'
+import Splash from './screens/Splash.jsx'
 import Welcome from './screens/Welcome.jsx'
 import Home from './screens/Home.jsx'
 import Talk from './screens/Talk.jsx'
@@ -8,7 +9,7 @@ import { useTheme } from './ThemeToggle.jsx'
 
 export default function App() {
   const [profile, setProfile] = useState(() => load('profile', null))
-  const [screen, setScreen] = useState(() => (load('profile', null) ? 'home' : 'welcome'))
+  const [screen, setScreen] = useState('splash')
   const [options, setOptions] = useState({})
   const [welcomeStep, setWelcomeStep] = useState(0)
   const theme = useTheme()
@@ -18,6 +19,14 @@ export default function App() {
 
   return (
     <main className="mx-auto min-h-screen max-w-xl bg-bg">
+      {screen === 'splash' && (
+        <Splash
+          profile={profile}
+          theme={theme}
+          onStart={() => { if (profile) go('home'); else { setWelcomeStep(0); go('welcome') } }}
+          onChange={() => { setWelcomeStep(1); go('welcome') }}
+        />
+      )}
       {screen === 'welcome' && (
         <Welcome profile={profile} startStep={welcomeStep} onDone={finishWelcome} theme={theme} />
       )}
