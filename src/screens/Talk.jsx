@@ -157,7 +157,7 @@ export default function Talk({ profile, options, theme, onBack }) {
       <Header
         left={<BackButton onClick={onBack} />}
         title={<div><div className="text-lg font-semibold">{TRADE_NAMES[profile.trade].ml}</div><div className="text-sm text-muted">{TRADE_NAMES[profile.trade].en} → {LANG_NAMES[profile.lang].en}</div></div>}
-        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
+        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} />}
       />
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 [&>*]:shrink-0" aria-live="polite">

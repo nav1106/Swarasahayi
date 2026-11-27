@@ -21,27 +21,19 @@ export function useTheme() {
   return [pref, (p) => { savePref(p); setPref(p) }]
 }
 
-// Three-way switch: Auto (follows the phone), Light, Dark.
-export default function ThemeToggle({ pref, onChange, compact = false }) {
+// One small button. Each tap moves to the next mode: Auto (follows the phone) -> Light -> Dark -> Auto.
+export default function ThemeToggle({ pref, onChange }) {
+  const next = THEMES[(THEMES.indexOf(pref) + 1) % THEMES.length]
+  const cur = LABELS[pref]
   return (
-    <div role="radiogroup" aria-label="Theme" className="inline-flex gap-1 rounded-full border-2 border-line bg-surface p-1">
-      {THEMES.map((t) => {
-        const on = pref === t
-        return (
-          <button
-            key={t}
-            type="button"
-            role="radio"
-            aria-checked={on}
-            aria-label={`${LABELS[t].ml} ${LABELS[t].en}`}
-            onClick={() => onChange(t)}
-            className={`flex min-h-12 items-center justify-center gap-1.5 rounded-full px-3 text-base font-semibold transition-colors ${on ? 'bg-primary text-on-primary' : 'text-muted'}`}
-          >
-            <Icon name={LABELS[t].icon} size={20} />
-            {!compact && <span>{LABELS[t].ml}</span>}
-          </button>
-        )
-      })}
-    </div>
+    <button
+      type="button"
+      onClick={() => onChange(next)}
+      aria-label={`${cur.ml} ${cur.en}. ${LABELS[next].en}`}
+      className="flex min-h-11 items-center gap-1.5 rounded-full border-2 border-line bg-surface px-3 text-sm font-semibold text-ink"
+    >
+      <Icon name={cur.icon} size={20} />
+      <span>{cur.en}</span>
+    </button>
   )
 }

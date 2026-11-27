@@ -31,8 +31,8 @@ export default function Welcome({ profile, startStep = 0, onDone, theme }) {
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
       <div className="weave weave-mask pointer-events-none absolute inset-x-0 top-0 h-72" aria-hidden="true" />
       <Kasavu />
-      <div className="relative flex justify-end px-3 pt-3">
-        <ThemeToggle pref={theme[0]} onChange={theme[1]} compact />
+      <div className="relative flex justify-start px-4 pt-3">
+        <ThemeToggle pref={theme[0]} onChange={theme[1]} />
       </div>
 
       <div className="relative flex flex-col items-center px-6 pb-2 text-center">

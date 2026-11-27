@@ -74,7 +74,7 @@ export default function Learn({ profile, theme, onBack }) {
         <Header
           left={<BackButton onClick={onBack} />}
           title={<div className="text-lg font-semibold">{S.learn.ml}<span className="block text-sm font-normal text-muted">{S.learn.en} · {TRADE_NAMES[profile.trade].en}</span></div>}
-          right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
+          right={<ThemeToggle pref={theme[0]} onChange={theme[1]} />}
         />
         <div className="flex flex-col gap-0 px-5 py-5">
           <div className="mb-4 flex items-center gap-3">
@@ -124,7 +124,7 @@ export default function Learn({ profile, theme, onBack }) {
       <Header
         left={<BackButton onClick={() => setLevel(null)} />}
         title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}<span className="block text-sm font-normal text-muted">{S.levels[level - 1].en}</span></div>}
-        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
+        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} />}
       />
       <div className="flex flex-1 flex-col gap-4 px-5 py-4">
         <div className="flex items-center justify-center gap-2" role="progressbar" aria-valuenow={index + 1} aria-valuemax={phrases.length}>

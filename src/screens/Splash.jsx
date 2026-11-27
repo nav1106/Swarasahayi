@@ -10,8 +10,8 @@ export default function Splash({ profile, onStart, onChange, theme }) {
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
       <div className="weave weave-mask pointer-events-none absolute inset-x-0 top-0 h-80" aria-hidden="true" />
       <Kasavu />
-      <div className="relative flex justify-end px-3 pt-3">
-        <ThemeToggle pref={theme[0]} onChange={theme[1]} compact />
+      <div className="relative flex justify-start px-4 pt-3">
+        <ThemeToggle pref={theme[0]} onChange={theme[1]} />
       </div>
       <div className="relative flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
         <Mascot mood="happy" size={150} />

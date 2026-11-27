@@ -30,16 +30,16 @@ export default function Home({ profile, theme, onTalk, onLearn, onDemo, onOfflin
   return (
     <div className="flex h-dvh flex-col overflow-y-auto">
       <Kasavu />
-      <div className="flex items-center gap-3 px-5 pt-3">
+      <div className="flex justify-start px-5 pt-2">
+        <ThemeToggle pref={theme[0]} onChange={theme[1]} />
+      </div>
+      <div className="flex items-center gap-3 px-5 pt-2">
         <Mascot mood="idle" size={64} />
         <div className="flex-1">
           <h1 className="font-hand text-3xl leading-tight">{S.namaskaram.ml}</h1>
           <p className="text-sm text-muted">{S.namaskaram.en}</p>
           <p className="text-muted">{S.tagline.en}</p>
         </div>
-      </div>
-      <div className="flex justify-end px-5 pt-2">
-        <ThemeToggle pref={theme[0]} onChange={theme[1]} compact />
       </div>
 
       <div className="px-5 pt-4">
