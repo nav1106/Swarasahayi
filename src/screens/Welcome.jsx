@@ -38,6 +38,7 @@ export default function Welcome({ profile, startStep = 0, onDone, theme }) {
       <div className="relative flex flex-col items-center px-6 pb-2 text-center">
         <Mascot mood={talking ? 'speaking' : step === 2 ? 'happy' : 'idle'} size={118} />
         <h1 className="font-hand mt-1 text-5xl leading-tight text-ink">{S.namaskaram.ml}</h1>
+        <p className="text-sm text-muted">{S.namaskaram.en}</p>
         <p className="text-lg text-muted">{S.appName.ml} · {S.tagline.en}</p>
       </div>
 

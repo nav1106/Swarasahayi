@@ -67,6 +67,8 @@ export const S = {
   lessonDone: { ml: 'പാഠം കഴിഞ്ഞു', en: 'Lesson complete' },
   stop: { ml: 'നിർത്തൂ', en: 'Stop' },
   heard: { ml: 'കേട്ടത്', en: 'Heard' },
+  changeWork: { ml: 'തൊഴിൽ / ഭാഷ മാറ്റുക', en: 'Change profession or language' },
+  yourWork: { ml: 'നിങ്ങളുടെ തൊഴിൽ', en: 'Your profession' },
 }
 export const TRADE_NAMES = {
   fish: { ml: 'മീൻ കച്ചവടം', en: 'Fish seller' },

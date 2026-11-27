@@ -73,7 +73,7 @@ export default function Learn({ profile, theme, onBack }) {
       <div className="flex min-h-screen flex-col">
         <Header
           left={<BackButton onClick={onBack} />}
-          title={<div className="text-lg font-semibold">{S.learn.ml}<span className="block text-sm font-normal text-muted">{TRADE_NAMES[profile.trade].ml}</span></div>}
+          title={<div className="text-lg font-semibold">{S.learn.ml}<span className="block text-sm font-normal text-muted">{S.learn.en} · {TRADE_NAMES[profile.trade].en}</span></div>}
           right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
         />
         <div className="flex flex-col gap-0 px-5 py-5">
@@ -123,7 +123,7 @@ export default function Learn({ profile, theme, onBack }) {
     <div className="flex min-h-screen flex-col">
       <Header
         left={<BackButton onClick={() => setLevel(null)} />}
-        title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}</div>}
+        title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}<span className="block text-sm font-normal text-muted">{S.levels[level - 1].en}</span></div>}
         right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
       />
       <div className="flex flex-1 flex-col gap-4 px-5 py-4">
@@ -156,7 +156,7 @@ export default function Learn({ profile, theme, onBack }) {
 
         {result && (
           <div className={`enter rounded-[24px] border-2 p-4 ${result.passed ? 'border-success bg-success-bg' : 'border-gold bg-surface2'}`}>
-            {result.heard && <p className="text-lg">{S.heard.ml}: <span className="font-semibold">{result.heard}</span> · {Math.round(result.score * 100)}%</p>}
+            {result.heard && <p className="text-lg">{S.heard.ml} <span className="text-sm text-muted">({S.heard.en})</span>: <span className="font-semibold">{result.heard}</span> · {Math.round(result.score * 100)}%</p>}
             {!result.passed && <p className="mt-1 text-sm text-muted">{tries}/{MAX_TRIES}</p>}
           </div>
         )}

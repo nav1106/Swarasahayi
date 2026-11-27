@@ -38,17 +38,19 @@ export default function Home({ profile, theme, onTalk, onLearn, onDemo, onOfflin
         <Mascot mood="idle" size={84} />
         <div>
           <h1 className="font-hand text-4xl leading-tight">{S.namaskaram.ml}</h1>
+          <p className="text-sm text-muted">{S.namaskaram.en}</p>
           <p className="text-muted">{S.tagline.en}</p>
         </div>
       </div>
 
       <div className="px-5 pt-4">
-        <button type="button" onClick={onChange} className="flex min-h-14 w-full items-center justify-center gap-2 rounded-full border-2 border-line bg-surface px-4 text-base font-semibold" aria-label={`${S.change.ml} ${S.change.en}`}>
-          <Icon name={TRADE_ICON[profile.trade]} size={22} className="text-link" />
-          <span>{TRADE_NAMES[profile.trade].ml}</span>
-          <span className="opacity-50" aria-hidden="true">→</span>
-          <span>{LANG_NAMES[profile.lang].ml}</span>
-          <span className="ml-1 text-sm font-normal text-link underline">{S.change.ml}</span>
+        <button type="button" onClick={onChange} className="btn btn-soft flex min-h-16 w-full items-center gap-3 rounded-[24px] px-4 py-3 text-left" aria-label={`${S.changeWork.ml} ${S.changeWork.en}`}>
+          <Icon name={TRADE_ICON[profile.trade]} size={30} className="shrink-0 text-link" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-lg font-semibold leading-snug">{TRADE_NAMES[profile.trade].ml} → {LANG_NAMES[profile.lang].ml}</span>
+            <span className="block text-sm opacity-80">{TRADE_NAMES[profile.trade].en} → {LANG_NAMES[profile.lang].en}</span>
+          </span>
+          <span className="shrink-0 text-right text-sm font-semibold text-link underline">{S.change.ml}<span className="block font-normal">{S.change.en}</span></span>
         </button>
       </div>
 

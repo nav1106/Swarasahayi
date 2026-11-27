@@ -165,7 +165,7 @@ export default function Talk({ profile, options, theme, onBack }) {
     <div className="flex h-dvh flex-col overflow-hidden">
       <Header
         left={<BackButton onClick={onBack} />}
-        title={<div><div className="text-lg font-semibold">{TRADE_NAMES[profile.trade].ml}</div><div className="text-sm text-muted">{LANG_NAMES[profile.lang].en}</div></div>}
+        title={<div><div className="text-lg font-semibold">{TRADE_NAMES[profile.trade].ml}</div><div className="text-sm text-muted">{TRADE_NAMES[profile.trade].en} → {LANG_NAMES[profile.lang].en}</div></div>}
         right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
       />
 
@@ -322,7 +322,8 @@ function OfflinePhrases({ profile, onSay }) {
       {phrases.map((p) => (
         <div key={p.id}>
           <button type="button" className="min-h-16 w-full rounded-2xl px-3 py-2 text-left text-lg active:bg-surface2" onClick={() => { setOpen(open === p.id ? null : p.id); onSay(p[profile.lang], profile.lang) }}>
-            {p.ml}
+            <span className="block">{p.ml}</span>
+            <span className="block text-sm text-muted">{p.en}</span>
           </button>
           {open === p.id && <p className="enter mx-2 mb-2 rounded-2xl bg-surface2 p-3 text-2xl font-bold">{p[profile.lang]}</p>}
         </div>
@@ -344,8 +345,8 @@ function TypeBox({ onSend, disabled }) {
   return (
     <form onSubmit={submit} className="enter flex flex-col gap-2 rounded-[26px] border-2 border-line bg-surface p-3">
       <div className="grid grid-cols-2 gap-2 text-base">
-        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'worker'} onChange={() => setSide('worker')} /> {S.workerMic.ml}</label>
-        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'customer'} onChange={() => setSide('customer')} /> {S.customerMic.ml}</label>
+        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'worker'} onChange={() => setSide('worker')} /> <span>{S.workerMic.ml}<span className="block text-xs text-muted">{S.workerMic.en}</span></span></label>
+        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'customer'} onChange={() => setSide('customer')} /> <span>{S.customerMic.ml}<span className="block text-xs text-muted">{S.customerMic.en}</span></span></label>
       </div>
       <div className="flex gap-2">
         <input value={text} onChange={(e) => setText(e.target.value)} className="min-h-16 min-w-0 flex-1 rounded-2xl border-2 border-line bg-bg px-4 text-xl text-ink" aria-label="Message" />
