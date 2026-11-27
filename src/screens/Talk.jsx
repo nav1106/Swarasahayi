@@ -8,7 +8,10 @@ import { startMeter } from '../lib/audioLevel.js'
 import { phrasesForTrade } from '../lib/phrases.js'
 import { DEMOS } from '../lib/demos.js'
 import { appendFeedback } from '../lib/storage.js'
-import { Bi, BigButton, Banner, Header } from '../ui.jsx'
+import { Bi, BigButton, Banner, Header, BackButton } from '../ui.jsx'
+import { Icon } from '../icons.jsx'
+import Mascot from '../Mascot.jsx'
+import ThemeToggle from '../ThemeToggle.jsx'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -25,7 +28,7 @@ async function stopMeter(promise) {
   return m ? m.stop() : null
 }
 
-export default function Talk({ profile, options, onBack }) {
+export default function Talk({ profile, options, theme, onBack }) {
   const [messages, setMessages] = useState([])
   const [status, setStatus] = useState('idle') // idle | listening | working | speaking
   const [interim, setInterim] = useState('')
@@ -45,7 +48,7 @@ export default function Talk({ profile, options, onBack }) {
   const langOf = (side) => (side === 'worker' ? 'ml' : profile.lang)
   const targetOf = (side) => (side === 'worker' ? profile.lang : 'ml')
 
-  useEffect(() => { endRef.current?.scrollIntoView?.({ behavior: 'smooth' }) }, [messages, pending])
+  useEffect(() => { endRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'end' }) }, [messages, pending, banner, showOffline, feedbackFor, toast])
   useEffect(() => {
     if (options.demo) runDemo()
     return () => { stopDemo.current = true; stopSpeaking() }
@@ -155,51 +158,61 @@ export default function Talk({ profile, options, onBack }) {
 
   const listening = status === 'listening'
   const busy = status !== 'idle'
+  const mood = listening ? 'listening' : status === 'working' ? 'thinking' : status === 'speaking' ? 'speaking' : banner?.kind === 'error' ? 'oops' : 'idle'
+  const caption = listening ? S.listening : status === 'working' ? S.working : status === 'speaking' ? S.speaking : S.tapToSpeak
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-dvh flex-col overflow-hidden">
       <Header
-        left={<button type="button" onClick={onBack} className="min-h-16 min-w-16 text-left text-lg" aria-label="Back">← {S.back.ml}</button>}
-        title={<div><div className="font-semibold">{TRADE_NAMES[profile.trade].ml}</div><div className="text-sm opacity-80">{LANG_NAMES[profile.lang].en}</div></div>}
-        right={<button type="button" onClick={() => setShowOffline((v) => !v)} className="min-h-16 min-w-16 text-right text-base underline">{S.offline.ml}</button>}
+        left={<BackButton onClick={onBack} />}
+        title={<div><div className="text-lg font-semibold">{TRADE_NAMES[profile.trade].ml}</div><div className="text-sm text-muted">{LANG_NAMES[profile.lang].en}</div></div>}
+        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
       />
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4" aria-live="polite">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 [&>*]:shrink-0" aria-live="polite">
+        <div className="flex items-center gap-3 rounded-[28px] bg-surface2 px-4 py-2">
+          <Mascot mood={mood} size={68} />
+          <div role="status" className="flex-1">
+            <Bi s={caption} />
+            {listening && interim && <p className="mt-1 text-xl">{interim}</p>}
+          </div>
+          <button type="button" onClick={() => setShowOffline((v) => !v)} aria-pressed={showOffline} className={`flex min-h-14 min-w-14 flex-col items-center justify-center rounded-2xl px-2 text-xs font-semibold ${showOffline ? 'bg-primary text-on-primary' : 'text-link'}`}>
+            <Icon name="wifioff" size={24} />
+            <span>{S.offline.en.split(' ')[0]}</span>
+          </button>
+        </div>
+
         {messages.length === 0 && !demoRunning && (
-          <p className="py-8 text-center opacity-70"><Bi s={S.workerMic} /></p>
+          <p className="px-6 py-6 text-center text-muted"><Bi s={S.workerMic} /></p>
         )}
         {messages.map((m) => (
           <Bubble key={m.id} m={m} onRepeat={() => say(m.tgt, m.to)} onSlow={() => say(m.tgt, m.to, 0.6)} onThumbs={() => setFeedbackFor(m)} />
         ))}
 
         {pending?.kind === 'confirm' && (
-          <div className="rounded-2xl border-2 border-teal-700 bg-white p-4">
+          <div className="enter rounded-[26px] border-2 border-primary bg-surface p-4">
             <Bi s={S.confirmQ} />
-            <p className="my-3 text-2xl">{pending.text}</p>
+            <p className="my-3 text-2xl font-semibold">{pending.text}</p>
             <div className="grid grid-cols-2 gap-3">
-              <BigButton s={S.yes} onClick={() => proceed(pending.side, pending.text)} />
-              <BigButton tone="soft" s={S.no} onClick={() => setPending(null)} />
+              <BigButton icon="check" s={S.yes} onClick={() => proceed(pending.side, pending.text)} />
+              <BigButton tone="soft" icon="close" s={S.no} onClick={() => setPending(null)} />
             </div>
           </div>
         )}
         {pending?.kind === 'empty' && (
-          <div className="rounded-2xl border-2 border-amber-500 bg-white p-4">
+          <div className="enter rounded-[26px] border-2 border-gold bg-surface p-4">
             <Bi s={S.sayAgain} />
             {pending.alternatives.slice(0, 2).map((a, i) => (
-              <BigButton key={i} tone="soft" className="mt-3 block w-full text-xl" onClick={() => proceed(pending.side, a.transcript)}>
-                <span className="block text-sm opacity-70">{S.heard.ml} / {S.heard.en}</span>{a.transcript}
-              </BigButton>
+              <button key={i} type="button" onClick={() => proceed(pending.side, a.transcript)} className="btn btn-soft mt-3 block min-h-16 w-full rounded-[20px] px-4 py-2 text-left text-xl">
+                <span className="block text-sm text-muted">{S.heard.ml} / {S.heard.en}</span>{a.transcript}
+              </button>
             ))}
           </div>
         )}
-        <div ref={endRef} />
-      </div>
-
-      <div className="sticky bottom-0 flex flex-col gap-3 border-t-2 border-teal-200 bg-teal-50 p-4">
         <Banner banner={banner} onRetry={retry} />
         {showOffline && <OfflinePhrases profile={profile} onSay={say} />}
         {feedbackFor && (
-          <div className="rounded-2xl border-2 border-teal-700 bg-white p-3">
+          <div className="enter rounded-[26px] border-2 border-primary bg-surface p-3">
             <div className="grid grid-cols-1 gap-2">
               <BigButton tone="soft" s={S.wrongWord} onClick={() => sendFeedback('wrong-word')} />
               <BigButton tone="soft" s={S.wrongNumber} onClick={() => sendFeedback('wrong-number')} />
@@ -208,75 +221,94 @@ export default function Talk({ profile, options, onBack }) {
             </div>
           </div>
         )}
-        {toast && <div className="rounded-xl bg-teal-800 p-3 text-center text-white"><Bi s={toast} /></div>}
-        {listening && (
-          <div className="text-center" role="status">
-            <Bi s={S.listening} />
-            <div className="mx-auto mt-2 h-3 w-48 overflow-hidden rounded-full bg-teal-200" aria-hidden="true">
-              <div className="h-full bg-teal-700 transition-all" style={{ width: `${Math.min(100, level * 400)}%` }} />
-            </div>
-            {interim && <p className="mt-2 text-xl">{interim}</p>}
-          </div>
-        )}
-        {status === 'working' && <p className="text-center" role="status"><Bi s={S.working} /></p>}
+        {toast && <div className="enter rounded-2xl bg-success-bg p-3 text-center text-success" role="status"><Bi s={toast} className="text-center" /></div>}
+        <div ref={endRef} />
+      </div>
 
-        {demoRunning ? (
-          <BigButton tone="danger" s={S.stop} onClick={() => { stopDemo.current = true; stopSpeaking(); setDemoRunning(false) }} />
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            <MicButton s={S.workerMic} active={listening} disabled={busy && !listening} onClick={() => handleListen('worker')} />
-            <MicButton s={S.customerMic} soft active={false} disabled={busy} onClick={() => handleListen('customer')} />
-          </div>
-        )}
-        <TypeBox open={showType} onToggle={() => setShowType((v) => !v)} onSend={(side, text) => proceed(side, text)} disabled={busy} />
+      <div className="z-10 shrink-0 bg-bg">
+        <div className="kasavu" aria-hidden="true" />
+        <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
+          {status === 'working' && <p className="sr-only" role="status">{S.working.en}</p>}
+
+          {demoRunning ? (
+            <BigButton tone="danger" icon="stop" s={S.stop} onClick={() => { stopDemo.current = true; stopSpeaking(); setDemoRunning(false) }} />
+          ) : (
+            <div className="flex items-end justify-between gap-2">
+              <DockSide icon="keyboard" s={S.typeInstead} active={showType} onClick={() => setShowType((v) => !v)} />
+              <div className="flex flex-col items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleListen('worker')}
+                  disabled={busy && !listening}
+                  aria-pressed={listening}
+                  aria-label={`${S.workerMic.ml} ${S.workerMic.en}`}
+                  className={`btn btn-primary relative flex h-24 w-24 items-center justify-center rounded-full ${listening ? 'mic-ring' : ''}`}
+                >
+                  {listening ? <Bars /> : <Icon name="mic" size={44} />}
+                </button>
+                <Bi s={S.workerMic} className="text-center" />
+              </div>
+              <DockSide icon="person" s={S.customerMic} disabled={busy} onClick={() => handleListen('customer')} />
+            </div>
+          )}
+          {showType && <TypeBox onSend={(side, text) => proceed(side, text)} disabled={busy} />}
+        </div>
       </div>
     </div>
   )
 }
 
-function MicButton({ s, onClick, disabled, active, soft }) {
+function Bars() {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-pressed={active}
-      className={`min-h-24 rounded-2xl px-3 py-3 text-center disabled:opacity-40 ${soft ? 'border-2 border-teal-700 bg-white text-teal-900' : 'bg-teal-700 text-white'} ${active ? 'listening' : ''}`}
-    >
-      <span className="block text-3xl" aria-hidden="true">🎤</span>
-      <Bi s={s} className="text-center" />
+    <span className="flex h-10 items-center gap-1.5" aria-hidden="true">
+      {[0, 0.15, 0.3, 0.15, 0].map((d, i) => <span key={i} className="bar block h-full w-1.5 rounded-full bg-on-primary" style={{ animationDelay: `${d}s` }} />)}
+    </span>
+  )
+}
+
+function DockSide({ icon, s, onClick, disabled, active }) {
+  return (
+    <button type="button" onClick={onClick} disabled={disabled} aria-pressed={active} className={`btn flex min-h-20 w-24 flex-col items-center justify-center gap-1 rounded-[24px] px-1 py-2 text-center ${active ? 'bg-primary text-on-primary' : 'btn-soft'}`}>
+      <Icon name={icon} size={28} />
+      <Bi s={s} className="text-center text-sm" mlClass="text-base" enClass="text-xs" />
     </button>
   )
 }
 
 function Bubble({ m, onRepeat, onSlow, onThumbs }) {
   const mine = m.side === 'worker'
+  const chip = (n, i) => {
+    const tone = m.blocked ? 'bg-danger-bg text-danger' : m.nums.status === 'unverified' ? 'bg-surface2 text-ink' : 'bg-success-bg text-success'
+    return (
+      <span key={i} className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-base font-bold ${tone}`}>
+        <Icon name={m.blocked ? 'alert' : 'check'} size={16} strokeWidth={3} />{n}
+      </span>
+    )
+  }
   return (
-    <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[88%] rounded-2xl p-3 shadow ${mine ? 'bg-teal-700 text-white' : 'bg-white text-teal-950'} ${m.blocked ? 'ring-4 ring-rose-500' : ''}`}>
-        <p className="text-base opacity-80">{m.src}</p>
-        <p className="mt-1 text-2xl font-semibold">{m.blocked ? '—' : m.tgt}</p>
-        {m.nums.source.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {m.nums.source.map((n, i) => (
-              <span key={i} className={`rounded-full px-3 py-1 text-base font-semibold ${m.blocked ? 'bg-rose-100 text-rose-900' : m.nums.status === 'unverified' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'}`}>
-                {m.blocked ? '⚠' : m.nums.status === 'unverified' ? '?' : '✓'} {n}
-              </span>
-            ))}
-          </div>
-        )}
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-          <span className="opacity-70">{m.via === 'phrasebank' ? '✔ phrase bank' : m.via === 'model' ? 'model' : ''}</span>
-        </div>
+    <div className={`enter flex ${mine ? 'justify-end' : 'justify-start'}`}>
+      <div className={`max-w-[90%] p-4 ${mine ? 'rounded-[28px] rounded-br-lg bg-primary text-on-primary' : 'rounded-[28px] rounded-bl-lg border-2 border-line bg-surface text-ink'} ${m.blocked ? 'ring-4 ring-danger' : ''}`}>
+        <p className="text-base opacity-85">{m.src}</p>
+        <p className="mt-1 text-2xl font-bold leading-snug">{m.blocked ? '—' : m.tgt}</p>
+        {m.nums.source.length > 0 && <div className="mt-2 flex flex-wrap gap-2">{m.nums.source.map(chip)}</div>}
+        {m.via === 'phrasebank' && !m.blocked && <p className="mt-2 flex items-center gap-1 text-sm opacity-85"><Icon name="check" size={14} strokeWidth={3} /> {'phrase bank'}</p>}
         {!m.blocked && (
-          <div className="mt-2 flex gap-2">
-            <button type="button" onClick={onRepeat} className="min-h-16 min-w-16 rounded-xl bg-black/10 px-3" aria-label="Repeat">🔊 <span className="text-sm">{S.repeat.ml}</span></button>
-            <button type="button" onClick={onSlow} className="min-h-16 min-w-16 rounded-xl bg-black/10 px-3" aria-label="Slower">🐢 <span className="text-sm">{S.slower.ml}</span></button>
-            <button type="button" onClick={onThumbs} className="min-h-16 min-w-16 rounded-xl bg-black/10 px-3" aria-label="Report a problem">👎</button>
+          <div className="mt-3 flex gap-2">
+            <BubbleAction onClick={onRepeat} label={`${S.repeat.ml} ${S.repeat.en}`} mine={mine}><Icon name="speaker" size={24} /></BubbleAction>
+            <BubbleAction onClick={onSlow} label={`${S.slower.ml} ${S.slower.en}`} mine={mine}><span className="text-base font-bold">0.6×</span></BubbleAction>
+            <BubbleAction onClick={onThumbs} label="Report a problem" mine={mine}><Icon name="thumbdown" size={22} /></BubbleAction>
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+function BubbleAction({ children, onClick, label, mine }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} className={`flex min-h-14 min-w-14 items-center justify-center rounded-full px-3 ${mine ? 'bg-on-primary/15' : 'bg-surface2'}`}>
+      {children}
+    </button>
   )
 }
 
@@ -285,14 +317,14 @@ function OfflinePhrases({ profile, onSay }) {
   const phrases = phrasesForTrade(profile.trade)
   const [open, setOpen] = useState(null)
   return (
-    <div className="max-h-72 overflow-y-auto rounded-2xl border-2 border-teal-700 bg-white p-2">
-      <p className="px-2 pb-1 text-sm opacity-70">{S.offline.ml} / {S.offline.en}</p>
+    <div className="enter max-h-80 overflow-y-auto rounded-[26px] border-2 border-line bg-surface p-2">
+      <p className="px-3 py-1 text-sm text-muted">{S.offline.ml} / {S.offline.en}</p>
       {phrases.map((p) => (
         <div key={p.id}>
-          <button type="button" className="min-h-16 w-full rounded-xl px-3 py-2 text-left text-lg active:bg-teal-50" onClick={() => { setOpen(open === p.id ? null : p.id); onSay(p[profile.lang], profile.lang) }}>
+          <button type="button" className="min-h-16 w-full rounded-2xl px-3 py-2 text-left text-lg active:bg-surface2" onClick={() => { setOpen(open === p.id ? null : p.id); onSay(p[profile.lang], profile.lang) }}>
             {p.ml}
           </button>
-          {open === p.id && <p className="mx-3 mb-2 rounded-xl bg-teal-100 p-3 text-2xl font-semibold">{p[profile.lang]}</p>}
+          {open === p.id && <p className="enter mx-2 mb-2 rounded-2xl bg-surface2 p-3 text-2xl font-bold">{p[profile.lang]}</p>}
         </div>
       ))}
     </div>
@@ -300,7 +332,7 @@ function OfflinePhrases({ profile, onSay }) {
 }
 
 // Fallback for browsers without speech recognition, and for testing without a microphone.
-function TypeBox({ open, onToggle, onSend, disabled }) {
+function TypeBox({ onSend, disabled }) {
   const [text, setText] = useState('')
   const [side, setSide] = useState('worker')
   const submit = (e) => {
@@ -310,18 +342,15 @@ function TypeBox({ open, onToggle, onSend, disabled }) {
     setText('')
   }
   return (
-    <div>
-      <button type="button" onClick={onToggle} className="min-h-12 w-full text-center text-base text-teal-800 underline">{S.typeInstead.ml} / {S.typeInstead.en}</button>
-      {open && (
-        <form onSubmit={submit} className="mt-2 flex flex-col gap-2">
-          <div className="grid grid-cols-2 gap-2 text-base">
-            <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'worker'} onChange={() => setSide('worker')} /> {S.workerMic.ml}</label>
-            <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'customer'} onChange={() => setSide('customer')} /> {S.customerMic.ml}</label>
-          </div>
-          <input value={text} onChange={(e) => setText(e.target.value)} className="min-h-16 rounded-xl border-2 border-teal-700 px-3 text-xl" aria-label="Message" />
-          <BigButton s={S.send} disabled={disabled || !text.trim()} onClick={submit} />
-        </form>
-      )}
-    </div>
+    <form onSubmit={submit} className="enter flex flex-col gap-2 rounded-[26px] border-2 border-line bg-surface p-3">
+      <div className="grid grid-cols-2 gap-2 text-base">
+        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'worker'} onChange={() => setSide('worker')} /> {S.workerMic.ml}</label>
+        <label className="flex min-h-12 items-center gap-2"><input type="radio" checked={side === 'customer'} onChange={() => setSide('customer')} /> {S.customerMic.ml}</label>
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="min-h-16 min-w-0 flex-1 rounded-2xl border-2 border-line bg-bg px-4 text-xl text-ink" aria-label="Message" />
+        <button type="submit" disabled={disabled || !text.trim()} className="btn btn-primary flex min-h-16 min-w-16 items-center justify-center rounded-2xl" aria-label={`${S.send.ml} ${S.send.en}`}><Icon name="send" size={26} /></button>
+      </div>
+    </form>
   )
 }

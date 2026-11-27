@@ -1,8 +1,15 @@
 // Malayalam first, English second. Every label is shown in both.
 export const S = {
+  namaskaram: { ml: 'നമസ്കാരം', en: 'Hello' },
+  tapToSpeak: { ml: 'മൈക്കിൽ തൊട്ട് സംസാരിക്കൂ', en: 'Tap the mic and speak' },
+  speaking: { ml: 'പറയുന്നു…', en: 'Speaking…' },
+  yourProgress: { ml: 'നിങ്ങളുടെ പുരോഗതി', en: 'Your progress' },
+  step: { ml: 'ഘട്ടം', en: 'Step' },
+  theme: { ml: 'തീം', en: 'Theme' },
+  almost: { ml: 'ഏതാണ്ട് ശരി', en: 'Almost there' },
   appName: { ml: 'സ്വരസഹായി', en: 'Swarasahayi' },
   tagline: { ml: 'നിങ്ങളുടെ ശബ്ദം, എല്ലാവർക്കും മനസ്സിലാകും.', en: 'Your voice, understood.' },
-  consent: { ml: 'നിങ്ങളുടെ ശബ്ദം പരിഭാഷയ്ക്ക് മാത്രമേ ഉപയോഗിക്കൂ. ഓഡിയോ സൂക്ഷിക്കില്ല.', en: 'Your voice is used only to translate. Audio is not saved.' },
+  consent: { ml: 'നിങ്ങളുടെ ശബ്ദം പരിഭാഷയ്ക്ക് മാത്രമേ ഉപയോഗിക്കൂ. ഞങ്ങൾ ഓഡിയോ സൂക്ഷിക്കില്ല; തിരിച്ചറിയാൻ ബ്രൗസർ ഇത് ഓൺലൈൻ സേവനത്തിലേക്ക് അയയ്ക്കാം.', en: 'Your voice is used only to translate. We do not save audio; your browser may send it to an online service to recognise speech.' },
   allow: { ml: 'തിരുത്തലുകൾ സൂക്ഷിക്കാൻ അനുവദിക്കുക', en: 'Allow saving corrections to improve the app' },
   deny: { ml: 'അനുവദിക്കില്ല', en: "Don't allow" },
   listenNotice: { ml: 'കേൾക്കൂ', en: 'Listen' },

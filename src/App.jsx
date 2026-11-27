@@ -4,24 +4,27 @@ import Welcome from './screens/Welcome.jsx'
 import Home from './screens/Home.jsx'
 import Talk from './screens/Talk.jsx'
 import Learn from './screens/Learn.jsx'
+import { useTheme } from './ThemeToggle.jsx'
 
 export default function App() {
   const [profile, setProfile] = useState(() => load('profile', null))
   const [screen, setScreen] = useState(() => (load('profile', null) ? 'home' : 'welcome'))
   const [options, setOptions] = useState({})
   const [welcomeStep, setWelcomeStep] = useState(0)
+  const theme = useTheme()
 
   const go = (next, opts = {}) => { setOptions(opts); setScreen(next) }
   const finishWelcome = (p) => { save('profile', p); setProfile(p); go('home') }
 
   return (
-    <main className="mx-auto min-h-screen max-w-xl bg-teal-50">
+    <main className="mx-auto min-h-screen max-w-xl bg-bg">
       {screen === 'welcome' && (
-        <Welcome profile={profile} startStep={welcomeStep} onDone={finishWelcome} />
+        <Welcome profile={profile} startStep={welcomeStep} onDone={finishWelcome} theme={theme} />
       )}
       {screen === 'home' && profile && (
         <Home
           profile={profile}
+          theme={theme}
           onTalk={() => go('talk')}
           onLearn={() => go('learn')}
           onDemo={() => go('talk', { demo: true })}
@@ -29,8 +32,8 @@ export default function App() {
           onChange={() => { setWelcomeStep(1); go('welcome') }}
         />
       )}
-      {screen === 'talk' && profile && <Talk profile={profile} options={options} onBack={() => go('home')} />}
-      {screen === 'learn' && profile && <Learn profile={profile} onBack={() => go('home')} />}
+      {screen === 'talk' && profile && <Talk profile={profile} options={options} theme={theme} onBack={() => go('home')} />}
+      {screen === 'learn' && profile && <Learn profile={profile} theme={theme} onBack={() => go('home')} />}
     </main>
   )
 }

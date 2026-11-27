@@ -4,9 +4,12 @@ import { lessonPhrases } from '../lib/phrases.js'
 import { LEVELS, MAX_TRIES, PASS_SCORE, isLevelUnlocked, levelStats, scoreAttempt } from '../lib/learn.js'
 import { listen, speak, speechSupported, stopSpeaking } from '../lib/speech.js'
 import { load, save } from '../lib/storage.js'
-import { Bi, BigButton, Banner, Header } from '../ui.jsx'
+import { Bi, BigButton, Banner, Header, BackButton } from '../ui.jsx'
+import { Icon } from '../icons.jsx'
+import Mascot from '../Mascot.jsx'
+import ThemeToggle from '../ThemeToggle.jsx'
 
-export default function Learn({ profile, onBack }) {
+export default function Learn({ profile, theme, onBack }) {
   const [progress, setProgress] = useState(() => load('progress', {})[profile.trade] || {})
   const [level, setLevel] = useState(null)
   const [index, setIndex] = useState(0)
@@ -64,28 +67,45 @@ export default function Learn({ profile, onBack }) {
 
   const start = (lv) => { setLevel(lv); setIndex(0); setTries(0); setResult(null) }
 
-  // ---- Level list ----
+  // ---- Level path ----
   if (!level) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header
-          left={<button type="button" onClick={onBack} className="min-h-16 min-w-16 text-left text-lg">← {S.back.ml}</button>}
-          title={<div className="font-semibold">{S.learn.ml} · {TRADE_NAMES[profile.trade].ml}</div>}
+          left={<BackButton onClick={onBack} />}
+          title={<div className="text-lg font-semibold">{S.learn.ml}<span className="block text-sm font-normal text-muted">{TRADE_NAMES[profile.trade].ml}</span></div>}
+          right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
         />
-        <div className="flex flex-col gap-4 p-5">
-          {LEVELS.map((lv) => {
+        <div className="flex flex-col gap-0 px-5 py-5">
+          <div className="mb-4 flex items-center gap-3">
+            <Mascot mood="idle" size={72} />
+            <Bi s={S.yourProgress} mlClass="text-xl" />
+          </div>
+          {LEVELS.map((lv, i) => {
             const stats = levelStats(profile.trade, lv, progress)
             const open = isLevelUnlocked(profile.trade, lv, progress)
+            const complete = stats.total > 0 && stats.passed === stats.total
             return (
-              <div key={lv} className={`rounded-2xl bg-white p-4 shadow ${open ? '' : 'opacity-60'}`}>
-                <div className="flex items-center justify-between">
-                  <Bi s={S.levels[lv - 1]} mlClass="text-2xl" />
-                  <span className="text-xl font-semibold">{stats.passed}/{stats.total} {'★'.repeat(stats.passed)}</span>
+              <div key={lv} className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-4 text-xl font-bold ${complete ? 'border-gold bg-primary text-on-primary' : open ? 'border-primary bg-surface text-ink' : 'border-line bg-surface2 text-muted'}`}>
+                    {complete ? <Icon name="check" size={28} strokeWidth={3} /> : open ? lv : <Icon name="lock" size={22} />}
+                  </span>
+                  {i < LEVELS.length - 1 && <span className="my-1 w-1 flex-1 rounded-full bg-line" style={{ minHeight: 28 }} aria-hidden="true" />}
                 </div>
-                <div className="my-3 h-3 overflow-hidden rounded-full bg-teal-100" role="progressbar" aria-valuenow={stats.passed} aria-valuemax={stats.total}>
-                  <div className="h-full bg-teal-700" style={{ width: `${stats.total ? (stats.passed / stats.total) * 100 : 0}%` }} />
+                <div className={`enter mb-4 flex-1 rounded-[26px] border-2 p-4 ${open ? 'border-line bg-surface' : 'border-line bg-surface2 opacity-80'}`} style={{ animationDelay: `${i * 0.07}s` }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <Bi s={S.levels[lv - 1]} mlClass="text-2xl" />
+                    <span className="flex gap-0.5 text-gold" aria-label={`${stats.passed}/${stats.total}`}>
+                      {Array.from({ length: stats.total }).map((_, k) => (
+                        <Icon key={k} name="star" size={20} className={k < stats.passed ? 'fill-current' : 'opacity-35'} />
+                      ))}
+                    </span>
+                  </div>
+                  {open
+                    ? <BigButton icon="play" s={S.learn} onClick={() => start(lv)} className="mt-3 w-full" />
+                    : <p className="mt-2 text-base text-muted">{S.lockedHint.ml}<span className="block text-sm">{S.lockedHint.en}</span></p>}
                 </div>
-                {open ? <BigButton s={S.learn} onClick={() => start(lv)} /> : <p><Bi s={S.lockedHint} /></p>}
               </div>
             )
           })}
@@ -98,38 +118,51 @@ export default function Learn({ profile, onBack }) {
   const stats = levelStats(profile.trade, level, progress)
   const done = progress[phrase.id]?.passed
   const outOfTries = !result?.passed && tries >= MAX_TRIES
+  const mood = listening ? 'listening' : result?.passed ? 'happy' : result ? 'oops' : 'idle'
   return (
     <div className="flex min-h-screen flex-col">
       <Header
-        left={<button type="button" onClick={() => setLevel(null)} className="min-h-16 min-w-16 text-left text-lg">← {S.back.ml}</button>}
-        title={<div className="font-semibold">{S.levels[level - 1].ml} · {index + 1}/{phrases.length}</div>}
-        right={<span className="text-lg">{'★'.repeat(stats.passed)}</span>}
+        left={<BackButton onClick={() => setLevel(null)} />}
+        title={<div className="text-lg font-semibold">{S.levels[level - 1].ml}</div>}
+        right={<ThemeToggle pref={theme[0]} onChange={theme[1]} compact />}
       />
-      <div className="flex flex-1 flex-col gap-4 p-5">
-        <div className="rounded-2xl bg-white p-5 shadow">
-          <p className="text-3xl font-bold">{phrase.en}</p>
-          <p className="mt-3 text-2xl">{phrase.ml}</p>
-          <p className="mt-2 text-xl text-teal-700">{phrase.pron}</p>
+      <div className="flex flex-1 flex-col gap-4 px-5 py-4">
+        <div className="flex items-center justify-center gap-2" role="progressbar" aria-valuenow={index + 1} aria-valuemax={phrases.length}>
+          {phrases.map((p, i) => (
+            <span key={p.id} className={`h-3 rounded-full transition-all ${i === index ? 'w-9 bg-primary' : progress[p.id]?.passed ? 'w-3 bg-gold' : 'w-3 bg-line'}`} />
+          ))}
         </div>
 
-        <BigButton tone="soft" s={S.hear} onClick={() => hear()} />
+        <div className="flex items-end gap-3">
+          <Mascot mood={mood} size={84} />
+          <div className="mb-3 flex-1 rounded-[24px] rounded-bl-md bg-surface2 px-4 py-2" role="status">
+            {listening ? <Bi s={S.listening} /> : result ? <Bi s={result.passed ? S.great : S.tryAgain} mlClass="text-xl" /> : <Bi s={S.sayIt} />}
+          </div>
+        </div>
+
+        <div key={phrase.id} className="enter rounded-[30px] border-2 border-line bg-surface p-5">
+          <p className="text-3xl font-bold leading-snug">{phrase.en}</p>
+          <p className="mt-3 text-2xl">{phrase.ml}</p>
+          <p className="mt-3 inline-block rounded-2xl bg-surface2 px-3 py-1 text-xl text-link">{phrase.pron}</p>
+        </div>
+
+        <BigButton tone="soft" icon="speaker" s={S.hear} onClick={() => hear()} />
 
         {speechSupported() ? (
-          <BigButton s={listening ? S.listening : S.sayIt} disabled={listening || outOfTries || result?.passed} onClick={attempt} className={listening ? 'listening' : ''} />
+          <BigButton icon="mic" s={listening ? S.listening : S.sayIt} disabled={listening || outOfTries || result?.passed} onClick={attempt} className="w-full" />
         ) : (
-          <BigButton s={S.iSaidIt} onClick={() => { record(phrase.id, { passed: true }); setResult({ passed: true, score: 1, heard: '' }) }} />
+          <BigButton icon="check" s={S.iSaidIt} onClick={() => { record(phrase.id, { passed: true }); setResult({ passed: true, score: 1, heard: '' }) }} />
         )}
 
         {result && (
-          <div className={`rounded-2xl border-2 p-4 ${result.passed ? 'border-emerald-600 bg-emerald-50' : 'border-amber-500 bg-amber-50'}`} role="status">
-            <Bi s={result.passed ? S.great : S.tryAgain} mlClass="text-2xl" />
-            {result.heard && <p className="mt-2 text-lg">{S.heard.ml}: {result.heard} ({Math.round(result.score * 100)}%)</p>}
-            {!result.passed && <p className="mt-1 text-sm opacity-70">{tries}/{MAX_TRIES}</p>}
+          <div className={`enter rounded-[24px] border-2 p-4 ${result.passed ? 'border-success bg-success-bg' : 'border-gold bg-surface2'}`}>
+            {result.heard && <p className="text-lg">{S.heard.ml}: <span className="font-semibold">{result.heard}</span> · {Math.round(result.score * 100)}%</p>}
+            {!result.passed && <p className="mt-1 text-sm text-muted">{tries}/{MAX_TRIES}</p>}
           </div>
         )}
         <Banner banner={banner} />
 
-        {(result?.passed || outOfTries || done) && <BigButton s={S.next} onClick={next} className="mt-auto" />}
+        {(result?.passed || outOfTries || done) && <BigButton icon="play" s={S.next} onClick={next} className="mt-auto w-full" />}
       </div>
     </div>
   )

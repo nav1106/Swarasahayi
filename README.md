@@ -72,19 +72,24 @@ Speech recognition and speech output use the browser's Web Speech API, behind sm
 `src/lib/speech.js` and `src/lib/translate.js`, so they can later be replaced with open-source models
 (IndicConformer, IndicTrans2, Indic Parler-TTS).
 
+## Look and feel
+
+Warm sunset-amber and cream palette with a dark mode that follows the phone by default; the toggle (auto / light / dark) is on every screen and is remembered on the device. A small original lamp-flame mascot reacts while listening, thinking and speaking. Fonts are bundled, so the app looks the same offline.
+
 ## Project layout
 
 ```
 src/screens/   Welcome (consent, trade, language), Home, Talk, Learn
+src/           theme.js + ThemeToggle (auto/light/dark), Mascot (lamp flame), icons, ui, index.css (design tokens)
 src/lib/       speech, translate, numbers, confidence, phrases, learn, audioLevel, storage
 src/data/      phrasebank.json (56 phrases), glossary.json (40 terms), manglish.json
-tests/         logic tests (vitest)
+tests/         logic tests + WCAG AA contrast test for both themes (vitest)
 Dockerfile, docker-compose.yml, nginx.conf, .env.example
 ```
 
 ## Privacy
 
-Audio is never stored. The profile, learning progress and (only with consent) correction logs stay in
+Swarasahayi never records or stores audio. Note: in Chrome, the Web Speech API sends speech to Google's servers for recognition, and typed or spoken text goes to the translation endpoint. The profile, theme choice, learning progress and (only with consent) correction logs stay in
 the phone's `localStorage`.
 
 ## Known limits
