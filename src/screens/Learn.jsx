@@ -40,7 +40,7 @@ export default function Learn({ profile, theme, onBack }) {
     setResult(null)
     setListening(true)
     try {
-      const { alternatives } = await listen('en', { silenceMs: 2200 })
+      const { alternatives } = await listen('en', { silenceMs: 3000 })
       const score = alternatives.length ? scoreAttempt(phrase.en, alternatives) : 0
       const passed = score >= PASS_SCORE
       const used = tries + 1

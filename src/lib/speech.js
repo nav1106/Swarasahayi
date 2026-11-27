@@ -14,27 +14,36 @@ export class SpeechError extends Error {
 
 // Listen once. Resolves with up to 3 alternatives; an empty list means nothing was heard.
 // Recording stops after `silenceMs` without new speech.
-export function listen(lang, { onInterim, onRecognizer, silenceMs = 1500, maxMs = 15000 } = {}) {
+export function listen(lang, { onInterim, onRecognizer, silenceMs = 3500, maxMs = 45000, firstWordMs = 10000 } = {}) {
   return new Promise((resolve, reject) => {
     if (!Recognition) return reject(new SpeechError('unsupported'))
     const rec = new Recognition()
     rec.lang = LANG_CODES[lang] || lang
     rec.interimResults = true
-    rec.continuous = false
+    // Keep listening through pauses; we stop it ourselves after `silenceMs` of quiet (or the Stop button).
+    rec.continuous = true
     rec.maxAlternatives = 3
     onRecognizer?.(rec)
     let last = Date.now()
     let result = []
     let settled = false
     const done = (fn, v) => { if (settled) return; settled = true; clearInterval(timer); clearTimeout(cap); fn(v) }
-    const timer = setInterval(() => { if (Date.now() - last > silenceMs && result.length) rec.stop() }, 250)
+    const started = Date.now()
+    const timer = setInterval(() => {
+      const quiet = Date.now() - last
+      if (result.length ? quiet > silenceMs : Date.now() - started > firstWordMs) rec.stop()
+    }, 250)
     const cap = setTimeout(() => rec.stop(), maxMs)
     rec.onresult = (e) => {
       last = Date.now()
-      const r = e.results[e.results.length - 1]
-      const alts = Array.from(r).map((a) => ({ transcript: a.transcript.trim(), confidence: a.confidence }))
-      result = alts
-      if (!r.isFinal) onInterim?.(alts[0]?.transcript || '')
+      // Rebuild the whole sentence from every segment so far (safe against repeated events on Android).
+      const segs = Array.from(e.results)
+      const lastSeg = segs[segs.length - 1]
+      const head = segs.slice(0, -1).map((r) => r[0].transcript.trim()).filter(Boolean).join(' ')
+      const finals = segs.filter((r) => r.isFinal && r[0].confidence > 0)
+      const conf = finals.length ? finals.reduce((n, r) => n + r[0].confidence, 0) / finals.length : lastSeg[0].confidence
+      result = Array.from(lastSeg).map((a, i) => ({ transcript: [head, a.transcript.trim()].filter(Boolean).join(' '), confidence: i === 0 ? conf : a.confidence }))
+      if (!lastSeg.isFinal || segs.length > 1) onInterim?.(result[0]?.transcript || '')
     }
     rec.onerror = (e) => {
       if (e.error === 'no-speech') return done(resolve, { alternatives: [] })
