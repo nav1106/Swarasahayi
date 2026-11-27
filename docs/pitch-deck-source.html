@@ -38,10 +38,13 @@ td:last-child{border-right:2px solid var(--line);border-radius:0 18px 18px 0}
 img.lamp{position:absolute;right:80px;top:70px;width:200px;height:200px;border-radius:44px}
 .ml{font-size:34px;font-weight:600}
 .tight h2{font-size:42px;margin-bottom:14px}
-.tight td{font-size:20px;padding:8px 14px}
-.tight table{border-spacing:0 7px}
-.tight .card{padding:18px 24px}
-.tight .card p{font-size:21px}
+.tight td{font-size:19px;padding:6px 14px}
+.tight table{border-spacing:0 5px}
+.tight .card{padding:12px 22px}
+.tight .cols{gap:12px}
+.tight .col{gap:12px!important}
+.tight .card h3{font-size:26px;margin-bottom:6px}
+.tight .card p{font-size:19px}
 .tight .step p{font-size:24px}
 </style></head><body>
 
@@ -87,13 +90,13 @@ img.lamp{position:absolute;right:80px;top:70px;width:200px;height:200px;border-r
 <div style="display:flex;flex-direction:column;gap:20px">
 <div class="step"><span class="dot">1</span><p><b>Reviewed phrase bank first.</b> 56 hand-written phrases answer instantly and work offline.</p></div>
 <div class="step"><span class="dot">2</span><p><b>Clean-up.</b> Malayalam typed in English letters and trade words (for example fish names) are normalised.</p></div>
-<div class="step"><span class="dot">3</span><p><b>Translation model</b> only for everything else.</p></div>
+<div class="step"><span class="dot">3</span><p><b>Translation model</b> only for everything else. All of this is covered by 71 automated tests.</p></div>
 </div>
-<div style="display:flex;flex-direction:column;gap:20px">
+<div class="col" style="display:flex;flex-direction:column;gap:12px">
 <div class="card"><h3>Number guard</h3><p>Every number must match in both languages, in digits or words, before the phone speaks. A mismatch is blocked and flagged.</p></div>
-<div class="card"><h3>Confidence check</h3><p>Not sure what was heard? It asks again. Half sure? It asks "Is this what you meant?" before translating.</p></div>
+<div class="card"><h3>Confidence check</h3><p>Not sure what was heard? It asks again. Half sure? It asks "Is this what you meant?" first.</p></div>
+<div class="card"><h3>Safety filter</h3><p>Abuse, threats and sexual requests (Malayalam, English, Hindi, Tamil) are never translated or spoken. The words are masked and the customer is asked politely to rephrase.</p></div>
 </div></div>
-<p class="muted" style="margin-top:14px;font-size:21px">The logic is covered by 64 automated tests, including contrast checks for light and dark mode.</p>
 <div class="foot"><span>Swarasahayi · How it works</span><span>4</span></div></section>
 
 <section class="slide"><div class="kasavu"></div>
@@ -114,6 +117,7 @@ img.lamp{position:absolute;right:80px;top:70px;width:200px;height:200px;border-r
 <tr><td>Translation service<br><span class="muted" style="font-weight:400;font-size:18px">free MyMemory endpoint</span></td><td>Busy or offline: the reviewed phrase bank still answers, and the app shows a message with the offline phrases.</td></tr>
 <tr><td>Voice on the phone</td><td>No Malayalam voice installed: the text stays on screen, with steps to install one.</td></tr>
 <tr><td>Noise and accents</td><td>Low confidence: it asks to repeat or confirm. Wrong numbers are blocked, never spoken.</td></tr>
+<tr><td>Abusive or unsafe speech</td><td>Blocked before translation and again on the translated text. Masked on screen, never spoken. A word-list filter that native speakers will keep extending.</td></tr>
 <tr><td>Hosting</td><td>A static web app, installable as a PWA. Starts with one command: docker compose up. Needs no keys.</td></tr></table>
 <p class="muted" style="font-size:21px">Next: swap the hosted services for open models (IndicConformer, IndicTrans2, Indic Parler-TTS) behind the same adapters.</p>
 <div class="foot"><span>Swarasahayi · Dependencies and fallbacks</span><span>6</span></div></section>
@@ -133,7 +137,7 @@ img.lamp{position:absolute;right:80px;top:70px;width:200px;height:200px;border-r
 <h2>What changes, and the main risk.</h2>
 <div class="cols c2">
 <div class="card"><h3>What changes</h3><ul><li>A worker can serve a customer without waiting for someone who speaks English.</li><li>Prices and times are checked, so fewer disputes.</li><li>Workers pick up the phrases they use most, at their own pace.</li></ul></div>
-<div class="card"><h3>Main risk</h3><ul><li>A wrong translation of a price or instruction.</li><li>Handled by reviewed phrases, the number guard and ask-again checks. Real-world accuracy is not yet tested with users, and I say so.</li><li>Privacy: no audio is saved. Chrome sends speech to its own service to recognise it, and the consent screen says so.</li></ul></div>
+<div class="card"><h3>Main risk</h3><ul><li>Misuse: the app could be used to pass on abuse. A safety filter blocks it, but a word list cannot catch everything.</li><li>A wrong translation of a price or instruction.</li><li>Handled by reviewed phrases, the number guard and ask-again checks. Real-world accuracy is not yet tested with users, and I say so.</li><li>Privacy: no audio is saved. Chrome sends speech to its own service to recognise it, and the consent screen says so.</li></ul></div>
 </div>
 <div class="foot"><span>Swarasahayi · Impact and risk</span><span>8</span></div></section>
 
